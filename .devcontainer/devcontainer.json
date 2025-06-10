@@ -1,0 +1,17 @@
+{
+    "name": "C GoogleTest",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+  "customizations": {
+    "vscode": {
+        "settings": {
+            "terminal.integrated.shell.linux": "/bin/bash"
+        },
+        "extensions": [
+            "ms-vscode.cpptools"
+        ]}
+    },
+    "postCreateCommand": "mkdir -p build && cd build && cmake .. && cmake --build .",
+    "remoteUser": "vscode"
+}
