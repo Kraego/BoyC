@@ -1,11 +1,11 @@
-# GB_Emu
+# BoyC
 
-Game Boy Emulation in C
+Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
 
 ## Structure
 
-* source ... sourcecode
-* test ... testcode
+* src ... sourcecode
+* tests ... testcode
 * doc ... documents
 
 ## Todos
