@@ -1,0 +1,10 @@
+{
+  "image": "gcc:latest",
+  "features": {
+    "google-test": "1.12.0"
+  },
+  "forwardPorts": [
+    8080
+  ],
+  "postCreateCommand": ". /etc/profile.d/devcontainer-features.sh && apt-get update && apt-get install -y libgtest-dev"
+}
