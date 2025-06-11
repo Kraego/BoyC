@@ -8,7 +8,7 @@ enable_testing()
 set(CMAKE_C_STANDARD 11)
 
 # Add your C source
-add_executable(main_exec src/main.c)
+add_executable(main_exec src/main.c src/cpu.c)
 
 # Download and add GoogleTest
 include(FetchContent)
@@ -21,7 +21,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # Add test executable
-add_executable(tests tests/cpu-test.c)
+add_executable(tests tests/cpu-test.c src/cpu.c)
 target_link_libraries(tests gtest_main)
 
 # Register the tests

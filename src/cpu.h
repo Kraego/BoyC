@@ -1,6 +1,10 @@
 #ifndef CPU_H
 #define CPU_H
 
-// contents of cpu.h go here
+/**
+ * Example function used by the unit tests.
+ */
+void example_function(void);
+
 
 #endif  // CPU_H
