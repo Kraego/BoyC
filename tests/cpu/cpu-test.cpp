@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/cpu.h"
+#include "../src/cpu/cpu.h"
 
 TEST(ExampleTest, example_function) {
     example_function();

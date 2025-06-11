@@ -2,7 +2,7 @@
 #define CPU_H
 
 /**
- * Example function used by the unit tests.
+ * Emulation of the gb cpu
  */
 #ifdef __cplusplus
 extern "C" {
