@@ -3,6 +3,7 @@ project(MyCTestProject C CXX)
 
 # Enable testing
 enable_testing()
+include(CTest)
 
 # Set C standard
 set(CMAKE_C_STANDARD 11)
