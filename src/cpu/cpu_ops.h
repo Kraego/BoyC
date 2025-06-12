@@ -78,10 +78,11 @@ static inline uint8_t op_ld_hl_a(cpu_t *cpu, mem_t *m){
 }
 
 /* JR s8  (opcode 0x18)*/
-static inline uint8_t op_jr_s8(cpu_t *cpu, mem_t *m){  
-    uint8_t s8 = mem_read_byte(m, cpu->pc + 1);
-    cpu->pc += s8;
-    return 3;  
+static inline uint8_t op_jr_s8(cpu_t *cpu, mem_t *m){
+    int8_t offset = (int8_t)mem_read_byte(m, cpu->pc + 1);
+    cpu->pc += 2;
+    cpu->pc = (uint16_t)(cpu->pc + offset);
+    return 3;
 }
 
 #ifdef __cplusplus
