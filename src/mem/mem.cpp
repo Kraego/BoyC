@@ -26,7 +26,7 @@ struct mem {
 /* --- read byte ---------------------------------------------------------- */
 uint8_t mem_rb(mem_t *m, uint16_t a)
 {
-    switch (a >> 12) {                      /* high nibble = region */
+    switch (a >> 12) {                          /* high nibble = region */
         case 0x0 ... 0x3: /* 0000–3FFF */       /* fixed ROM bank 0 */
             return m->rom[a];
         case 0x4 ... 0x7: /* 4000–7FFF */       /* switchable ROM */
