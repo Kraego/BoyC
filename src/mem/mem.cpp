@@ -71,7 +71,7 @@ uint16_t mem_read_word(mem_t *m, uint16_t adr)
     return (high << 8) | low;
 }
 
-void mem_wb(mem_t *m, uint16_t adr, uint8_t value)
+void mem_write_byte(mem_t *m, uint16_t adr, uint8_t value)
 {
     switch (adr >> 12) {
         case 0x8 ... 0x9: // 8000–9FFF: VRAM
@@ -115,10 +115,10 @@ void mem_wb(mem_t *m, uint16_t adr, uint8_t value)
     }
 }
 
-void mem_ww(mem_t *m, uint16_t adr, uint16_t value)
+void mem_write_word(mem_t *m, uint16_t adr, uint16_t value)
 {
-    mem_wb(m, adr, value & 0xFF);
-    mem_wb(m, adr + 1, value >> 8);
+    mem_write_byte(m, adr, value & 0xFF);
+    mem_write_byte(m, adr + 1, value >> 8);
 }
 
 /* TODOS: mem_wb(), mem_rw(), mem_ww() would mirror the same map,

@@ -29,10 +29,12 @@ Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
    ```bash
    git submodule update --init --recursive
    ```
+3. Run it:
+   ```bash
+   ./boyc_exec "/workspaces/BoyC/tests/test_roms/bin/cpu_bus_1.gb"
+   ```
 
-Using `ctest -T test` requires `DartConfiguration.tcl`, which is generated when
-`include(CTest)` is present in the `CMakeLists.txt`. Running `ctest` as shown
-above is sufficient for local testing.
+
 
 ## Todos
 
