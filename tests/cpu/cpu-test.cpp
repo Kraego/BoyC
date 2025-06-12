@@ -2,6 +2,7 @@
 #include "cpu.h"
 #include "mem.h"
 #include "rom.h"
+#include <stdio.h>
 
 #define ROM_SIZE 0x8000 // 32KB
 
@@ -32,7 +33,9 @@ TEST(cpu_step_one_step_success, cpu_step) {
 
     uint8_t rom_image[ROM_SIZE]; 
 
-    ret = load_rom("./tests/test_roms/bin/cpu_bus_1.gb", rom_image, ROM_SIZE);
+    char rom_path[256];
+    snprintf(rom_path, sizeof(rom_path), "%s/cpu_bus_1.gb", TEST_ROM_DIR);
+    ret = load_rom(rom_path, rom_image, ROM_SIZE);
     EXPECT_EQ(ret, 0);
 
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
