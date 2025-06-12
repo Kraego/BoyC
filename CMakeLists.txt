@@ -5,6 +5,7 @@ project(MyCTestProject C CXX)
 include_directories(
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/src/cpu
+  ${CMAKE_SOURCE_DIR}/src/mem
 )
 
 # Enable testing
@@ -15,7 +16,11 @@ include(CTest)
 set(CMAKE_C_STANDARD 11)
 
 # Add your C source
-add_executable(main_exec src/main.c)
+add_executable(boyc_exec 
+  src/main.cpp
+  src/mem/mem.cpp
+  src/cpu/cpu.cpp
+  src/cpu/cpu_ops.cpp)
 
 # Download and add GoogleTest
 include(FetchContent)
@@ -28,7 +33,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # Add test executable
-add_executable(tests tests/cpu/cpu-test.cpp src/cpu/cpu.c)
+add_executable(tests tests/cpu/cpu-test.cpp)
 target_link_libraries(tests gtest_main)
 
 # Register the tests

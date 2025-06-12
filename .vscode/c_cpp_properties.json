@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src/*",
-                "${workspaceFolder}/src/cpu/*"
+                "${workspaceFolder}/src/cpu/*",
+                "${workspaceFolder}/src/mem/*"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
