@@ -37,12 +37,17 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # Add test executable
-add_executable(tests 
+add_executable(tests
   tests/cpu/cpu-test.cpp
   src/cpu/cpu.cpp
   src/cpu/cpu_ops.cpp
   src/mem/mem.cpp
   src/rom/rom.cpp)
+
+# Provide the absolute path to the bundled test ROMs so unit tests can
+# locate them when executed from the build directory.
+target_compile_definitions(tests PRIVATE
+  TEST_ROM_DIR="${CMAKE_SOURCE_DIR}/tests/test_roms/bin")
   
 target_link_libraries(tests gtest_main)
 

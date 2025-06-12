@@ -23,6 +23,13 @@ Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
    cd build && ctest --output-on-failure
    ```
 
+   The unit tests rely on ROM images provided via a git submodule. If you have
+   just cloned the repository, fetch these files first:
+
+   ```bash
+   git submodule update --init --recursive
+   ```
+
 Using `ctest -T test` requires `DartConfiguration.tcl`, which is generated when
 `include(CTest)` is present in the `CMakeLists.txt`. Running `ctest` as shown
 above is sufficient for local testing.
