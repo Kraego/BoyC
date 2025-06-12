@@ -33,7 +33,12 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # Add test executable
-add_executable(tests tests/cpu/cpu-test.cpp)
+add_executable(tests 
+  tests/cpu/cpu-test.cpp
+  src/cpu/cpu.cpp
+  src/cpu/cpu_ops.cpp
+  src/mem/mem.cpp)
+  
 target_link_libraries(tests gtest_main)
 
 # Register the tests
