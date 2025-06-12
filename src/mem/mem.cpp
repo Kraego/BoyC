@@ -28,14 +28,14 @@ uint8_t mem_rb(mem_t *m, uint16_t a)
 {
     switch (a >> 12) {                      /* high nibble = region */
         case 0x0 ... 0x3: /* 0000–3FFF */       /* fixed ROM bank 0 */
-        return m->rom[a];
+            return m->rom[a];
         case 0x4 ... 0x7: /* 4000–7FFF */       /* switchable ROM */
-        return m->rom[(m->rom_bank * 0x4000) | (a & 0x3FFF)];
+            return m->rom[(m->rom_bank * 0x4000) | (a & 0x3FFF)];
         case 0x8 ... 0x9: /* 8000–9FFF */       /* VRAM */
-        return m->vram[a - 0x8000];
+            return m->vram[a - 0x8000];
         /* …many other cases (WRAM, echo, OAM, I/O, HRAM)… */
         default:
-        return 0xFF;                        /* open bus */
+            return 0xFF;                        /* open bus */
     }
 }
 

@@ -1,6 +1,9 @@
 #include <gtest/gtest.h>
 #include "cpu.h"
 #include "mem.h"
+#include "rom.h"
+
+#define ROM_SIZE 0x8000 // 32KB
 
 TEST(cpu_dump_test_sueccess, cpu_dump) {
     cpu_t cpu = {};
@@ -21,16 +24,19 @@ TEST(cpu_reset_test_success, cpu_reset) {
     EXPECT_EQ(cpu.pc,   0x0100);
 }
 
-TEST(cpu_step_corrupt_opcode_fails, cpu_step) {
+TEST(cpu_step_one_step_success, cpu_step) {
     cpu_t cpu = {};
+    int ret = 0;
+    
     cpu_reset(&cpu);
 
-    uint8_t rom_image[1000]; // TODO: load broken ROM
-    size_t rom_size = 1000; // TODO: estimate
+    uint8_t rom_image[ROM_SIZE]; 
 
-    mem_t *mem = mem_create(rom_image, rom_size);
+    ret = load_rom("./tests/test_roms/bin/cpu_bus_1.gb", rom_image, ROM_SIZE);
+    EXPECT_EQ(ret, 0);
 
-    int ret = cpu_step(&cpu, mem);
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+    ret = cpu_step(&cpu, mem);
 
     EXPECT_EQ(ret, -1);
 }
