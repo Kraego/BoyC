@@ -54,7 +54,7 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             cycles = op_ld_a_d8(cpu, m);
             break;
         case 0x77:
-            cycles = op_ld_hl_a(cpu);
+            cycles = op_ld_hl_a(cpu, m);
             break;
         case 0xC3: 
             cycles = op_jp_a16(cpu, m);

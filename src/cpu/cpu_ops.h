@@ -71,10 +71,10 @@ static inline uint8_t op_ld_a_d8(cpu_t *cpu, mem_t *m){
 }
 
 /* LD (HL), A  (opcode 0x77)*/
-static inline uint8_t op_ld_hl_a(cpu_t *cpu){  
-    cpu->r.hl = cpu->r.a;
+static inline uint8_t op_ld_hl_a(cpu_t *cpu, mem_t *m){
+    mem_wb(m, cpu->r.hl, cpu->r.a);
     cpu->pc++;
-    return 1;  
+    return 1;
 }
 
 /* JR s8  (opcode 0x18)*/
