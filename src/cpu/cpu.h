@@ -60,7 +60,7 @@ typedef struct {
 // Function prototypes
 void cpu_reset(cpu_t *cpu);
 void cpu_dump(const cpu_t *c);
-int cpu_step(cpu_t *c, mem_t *m);
+int8_t cpu_step(cpu_t *c, mem_t *m);
 
 #ifdef __cplusplus
 }

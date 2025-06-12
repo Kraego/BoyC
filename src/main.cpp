@@ -6,11 +6,11 @@ int quit = 0;
 
 int main(int argc, char const *argv[])
 {
+    cpu_t  cpu;
     uint8_t *cart_image;
     size_t cart_size;
 
     mem_t *mem = mem_create(cart_image, cart_size);
-    cpu_t  cpu;
     cpu_reset(&cpu);
 
     while (!quit) {

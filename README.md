@@ -47,3 +47,4 @@ above is sufficient for local testing.
 
 * [Gameboy Development Wiki](https://gbdev.gg8.se/wiki/articles/Main_Page)
 * CPU: https://www.chciken.com/tlmboy/2021/10/01/gameboy-cpu.html
+   * opcodes site: https://meganesu.github.io/generate-gb-opcodes/

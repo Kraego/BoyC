@@ -25,7 +25,14 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable hex display",
+                    "text": "set output-radix 16",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }

@@ -21,7 +21,6 @@ add_executable(boyc_exec
   src/main.cpp
   src/mem/mem.cpp
   src/cpu/cpu.cpp
-  src/cpu/cpu_ops.cpp
   src/rom/rom.cpp)
 
 # Download and add GoogleTest
@@ -40,7 +39,6 @@ FetchContent_MakeAvailable(googletest)
 add_executable(tests
   tests/cpu/cpu-test.cpp
   src/cpu/cpu.cpp
-  src/cpu/cpu_ops.cpp
   src/mem/mem.cpp
   src/rom/rom.cpp)
 

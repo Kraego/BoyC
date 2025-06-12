@@ -31,20 +31,40 @@ void cpu_reset(cpu_t *cpu)
     cpu->pc   = 0x0100;          /* first cartridge byte after the header */
 }
 
-int cpu_step(cpu_t *cpu, mem_t *m)
+int8_t cpu_step(cpu_t *cpu, mem_t *m)
 {
-    uint8_t opcode = mem_rb(m, cpu->pc++);   /* read byte, advance PC */
+    uint8_t cycles = 1;
+    uint8_t opcode = mem_read_byte(m, cpu->pc);
 
     switch (opcode)
     {
-        case 0x00: /* NOP */                          break;
-        // case 0x78: op_ld_a_b(c);                      break;
-        // case 0x09: op_add_hl_bc(c);                   break;
-        /* …hundreds more … */
-        default:   fprintf(stderr,"Unknown opcode\n"); return -1;
+        case 0x00:
+            cycles = nop(cpu);                       
+            break;
+        case 0x01:
+            cycles = op_ld_bc_d16(cpu, m);
+            break;
+        case 0x18:
+            cycles = op_jr_s8(cpu, m);
+            break;
+        case 0x21:
+            cycles = op_ld_hl_d16(cpu, m);
+            break;
+        case 0x3E:
+            cycles = op_ld_a_d8(cpu, m);
+            break;
+        case 0x77:
+            cycles = op_ld_hl_a(cpu);
+            break;
+        case 0xC3: 
+            cycles = op_jp_a16(cpu, m);
+            break;
+        default:   
+            fprintf(stderr,"Unknown opcode\n"); 
+            return -1;
     }
 
-    cpu->cycles += instr_cycles[opcode];   /* timing table */
+    cpu->cycles += cycles;   // timing table
     return 0;
 }
 
