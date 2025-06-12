@@ -38,5 +38,5 @@ TEST(cpu_step_one_step_success, cpu_step) {
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
     ret = cpu_step(&cpu, mem);
 
-    EXPECT_EQ(ret, -1);
+    EXPECT_EQ(ret, 0);
 }
