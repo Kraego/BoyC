@@ -36,8 +36,11 @@ typedef union {
 
 static inline void cpu_set_flag(cpu_regs_t *r, uint8_t mask, int on)
 {
-    if (on)  r->f |=  mask;
-    else     r->f &= ~mask;
+    if(on){
+        r->f |=  mask;
+    } else { 
+        r->f &= ~mask;
+    }
 }
 
 static inline int cpu_get_flag(const cpu_regs_t *r, uint8_t mask)
@@ -57,7 +60,7 @@ typedef struct {
 // Function prototypes
 void cpu_reset(cpu_t *cpu);
 void cpu_dump(const cpu_t *c);
-void cpu_step(cpu_t *c, mem_t *m);
+int cpu_step(cpu_t *c, mem_t *m);
 
 #ifdef __cplusplus
 }

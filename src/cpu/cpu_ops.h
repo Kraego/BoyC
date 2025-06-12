@@ -12,7 +12,10 @@ extern "C" {
 
 #define OPS_COUNT   (1)
 
-uint8_t instr_cycles[OPS_COUNT] = {};
+uint8_t instr_cycles[OPS_COUNT] = {
+    1, // 0x00 NOP
+    
+};
 
 static inline void op_ld_a_b(cpu_t *c);
 

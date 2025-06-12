@@ -27,17 +27,20 @@ struct mem {
 uint8_t mem_rb(mem_t *m, uint16_t a)
 {
     switch (a >> 12) {                      /* high nibble = region */
-    case 0x0 ... 0x3: /* 0000–3FFF */       /* fixed ROM bank 0 */
+        case 0x0 ... 0x3: /* 0000–3FFF */       /* fixed ROM bank 0 */
         return m->rom[a];
-    case 0x4 ... 0x7: /* 4000–7FFF */       /* switchable ROM */
+        case 0x4 ... 0x7: /* 4000–7FFF */       /* switchable ROM */
         return m->rom[(m->rom_bank * 0x4000) | (a & 0x3FFF)];
-    case 0x8 ... 0x9: /* 8000–9FFF */       /* VRAM */
+        case 0x8 ... 0x9: /* 8000–9FFF */       /* VRAM */
         return m->vram[a - 0x8000];
-    /* …many other cases (WRAM, echo, OAM, I/O, HRAM)… */
-    default:
+        /* …many other cases (WRAM, echo, OAM, I/O, HRAM)… */
+        default:
         return 0xFF;                        /* open bus */
     }
 }
+
+/* TODOS: mem_wb(), mem_rw(), mem_ww() would mirror the same map,
+   plus call-outs for DMA, joypad latches, timer increments, etc.        */
 
 mem_t *mem_create(const uint8_t *rom_image, size_t rom_size){
     mem_t *memory = (mem_t *) malloc(rom_size);
@@ -49,8 +52,3 @@ mem_t *mem_create(const uint8_t *rom_image, size_t rom_size){
 void mem_reset (mem_t *m){
     free(m);
 }
-
-
-
-/* mem_wb(), mem_rw(), mem_ww() would mirror the same map,
-   plus call-outs for DMA, joypad latches, timer increments, etc.        */

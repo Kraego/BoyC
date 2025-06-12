@@ -7,15 +7,15 @@
 /*
 * For debugging purpose
 */
-void cpu_dump(const cpu_t *c)
+void cpu_dump(const cpu_t *cpu)
 {
     printf("AF:%04X BC:%04X DE:%04X HL:%04X  PC:%04X SP:%04X  F:%c%c%c%c\n",
-           c->r.af, c->r.bc, c->r.de, c->r.hl,
-           c->pc, c->sp,
-           cpu_get_flag(&c->r,F_Z)?'Z':'-',
-           cpu_get_flag(&c->r,F_N)?'N':'-',
-           cpu_get_flag(&c->r,F_H)?'H':'-',
-           cpu_get_flag(&c->r,F_C)?'C':'-');
+           cpu->r.af, cpu->r.bc, cpu->r.de, cpu->r.hl,
+           cpu->pc, cpu->sp,
+           cpu_get_flag(&cpu->r,F_Z)?'Z':'-',
+           cpu_get_flag(&cpu->r,F_N)?'N':'-',
+           cpu_get_flag(&cpu->r,F_H)?'H':'-',
+           cpu_get_flag(&cpu->r,F_C)?'C':'-');
 }
 
 void cpu_reset(cpu_t *cpu)
@@ -31,9 +31,9 @@ void cpu_reset(cpu_t *cpu)
     cpu->pc   = 0x0100;          /* first cartridge byte after the header */
 }
 
-void cpu_step(cpu_t *c, mem_t *m)
+int cpu_step(cpu_t *cpu, mem_t *m)
 {
-    uint8_t opcode = mem_rb(m, c->pc++);   /* read byte, advance PC */
+    uint8_t opcode = mem_rb(m, cpu->pc++);   /* read byte, advance PC */
 
     switch (opcode)
     {
@@ -41,9 +41,10 @@ void cpu_step(cpu_t *c, mem_t *m)
         // case 0x78: op_ld_a_b(c);                      break;
         // case 0x09: op_add_hl_bc(c);                   break;
         /* …hundreds more … */
-        default:   fprintf(stderr,"Unknown opcode\n"); exit(1);
+        default:   fprintf(stderr,"Unknown opcode\n"); return -1;
     }
 
-    c->cycles += instr_cycles[opcode];   /* timing table */
+    cpu->cycles += instr_cycles[opcode];   /* timing table */
+    return 0;
 }
 
