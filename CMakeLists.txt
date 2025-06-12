@@ -42,13 +42,28 @@ add_executable(tests
   src/mem/mem.cpp
   src/rom/rom.cpp)
 
-# Provide the absolute path to the bundled test ROMs so unit tests can
-# locate them when executed from the build directory.
-target_compile_definitions(tests PRIVATE
-  TEST_ROM_DIR="${CMAKE_SOURCE_DIR}/tests/test_roms/bin")
   
-target_link_libraries(tests gtest_main)
-
+  target_link_libraries(tests gtest_main)
+  
 # Register the tests
 include(GoogleTest)
 gtest_discover_tests(tests)
+
+# Get Test roms
+include(ExternalProject)
+
+ExternalProject_Add(
+  gb_test_roms
+  URL https://github.com/c-sp/game-boy-test-roms/releases/download/v7.0/game-boy-test-roms-v7.0.zip
+  PREFIX ${CMAKE_BINARY_DIR}/gb_test_roms
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  LOG_DOWNLOAD ON
+  DOWNLOAD_EXTRACT_TIMESTAMP ON
+  )
+  
+# Provide the absolute path to the bundled test ROMs so unit tests can
+# locate them when executed from the build directory.
+target_compile_definitions(tests PRIVATE
+  TEST_ROM_DIR="${CMAKE_BINARY_DIR}/gb_test_roms/src/gb_test_roms")

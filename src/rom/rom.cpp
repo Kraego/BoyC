@@ -16,6 +16,6 @@ int load_rom(const char *filename, uint8_t *rom, size_t max_size) {
         return -2;
     }
 
-    printf("Loaded %zu bytes from ROM\n", read_bytes);
+    printf("Loaded %zu bytes from %s\n", read_bytes, filename);
     return 0;
 }

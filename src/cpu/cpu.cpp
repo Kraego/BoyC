@@ -60,7 +60,7 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             cycles = op_jp_a16(cpu, m);
             break;
         default:   
-            fprintf(stderr,"Unknown opcode\n"); 
+            fprintf(stderr,"Unknown opcode %x\n", opcode); 
             return -1;
     }
 

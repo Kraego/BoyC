@@ -31,7 +31,7 @@ Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
    ```
 3. Run it:
    ```bash
-   ./boyc_exec "/workspaces/BoyC/tests/test_roms/bin/cpu_bus_1.gb"
+   ./boyc_exec "gb_test_roms/src/gb_test_roms/blargg/cpu_instrs/cpu_instrs.gb"
    ```
 
 
