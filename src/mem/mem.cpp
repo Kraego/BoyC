@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "mem.h"
 
 struct mem {
@@ -68,6 +69,56 @@ uint16_t mem_read_word(mem_t *m, uint16_t adr)
     uint8_t high = mem_read_byte(m, adr + 1);
 
     return (high << 8) | low;
+}
+
+void mem_wb(mem_t *m, uint16_t adr, uint8_t value)
+{
+    switch (adr >> 12) {
+        case 0x8 ... 0x9: // 8000–9FFF: VRAM
+            m->vram[adr - 0x8000] = value;
+            break;
+        case 0xA ... 0xB: // A000–BFFF: External (cartridge) RAM
+            m->eram[adr - 0xA000] = value;
+            break;
+        case 0xC: // C000–CFFF: Work RAM bank 0
+            m->wram[adr - 0xC000] = value;
+            break;
+        case 0xD: // D000–DFFF: Work RAM bank 1
+            m->wram[0x1000 + (adr - 0xD000)] = value;
+            break;
+        case 0xE: // E000–EFFF: Echo RAM
+            m->wram[adr - 0xE000] = value;
+            break;
+        case 0xF:
+            if (adr < 0xFE00) { // F000–FDFF: Echo RAM continued
+                m->wram[adr - 0xE000] = value;
+            } else if (adr < 0xFEA0) { // FE00–FE9F: OAM
+                m->oam[adr - 0xFE00] = value;
+            } else if (adr < 0xFF00) {
+                /* unusable memory */
+            } else if (adr < 0xFF80) { // FF00–FF7F: I/O Registers
+                m->io[adr - 0xFF00] = value;
+                if (adr == 0xFF02 && value == 0x81) {
+                    uint8_t c = m->io[0x01];
+                    putchar(c);
+                    fflush(stdout);
+                }
+            } else if (adr < 0xFFFF) { // FF80–FFFE: HRAM
+                m->hram[adr - 0xFF80] = value;
+            } else {
+                m->ie = value;
+            }
+            break;
+        default:
+            /* ignore writes to ROM or open bus */
+            break;
+    }
+}
+
+void mem_ww(mem_t *m, uint16_t adr, uint16_t value)
+{
+    mem_wb(m, adr, value & 0xFF);
+    mem_wb(m, adr + 1, value >> 8);
 }
 
 /* TODOS: mem_wb(), mem_rw(), mem_ww() would mirror the same map,
