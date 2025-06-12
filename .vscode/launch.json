@@ -2,10 +2,23 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run main_exec",
+            "name": "Run boyc_exec",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/main_exec",
+            "program": "${workspaceFolder}/build/boyc_exec",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb"
+        },
+        {
+            "name": "Run unit tests",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/tests",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
