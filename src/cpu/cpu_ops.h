@@ -228,6 +228,55 @@ static inline uint8_t op_ld_b_c(cpu_t *cpu, mem_t *m) {
     return 1;
 }
 
+/* LD B, D (opcode 0x42) */
+static inline uint8_t op_ld_b_d(cpu_t *cpu) {
+    cpu->r.b = cpu->r.d;
+    cpu->pc++;
+    return 1;
+}
+
+/* LD B, E (opcode 0x43) */
+static inline uint8_t op_ld_b_e(cpu_t *cpu) {
+    cpu->r.b = cpu->r.e;
+    cpu->pc++;
+    return 1;
+}
+
+/* LD B, H (opcode 0x44) */
+static inline uint8_t op_ld_b_h(cpu_t *cpu) {
+    cpu->r.b = cpu->r.h;
+    cpu->pc++;
+    return 1;
+}
+
+/* LD B, L (opcode 0x45) */
+static inline uint8_t op_ld_b_l(cpu_t *cpu) {
+    cpu->r.b = cpu->r.l;
+    cpu->pc++;
+    return 1;
+}
+
+/* LD B, (HL) (opcode 0x46) */
+static inline uint8_t op_ld_b_hl(cpu_t *cpu, mem_t *m) {
+    cpu->r.b = mem_read_byte(m, cpu->r.hl);
+    cpu->pc++;
+    return 2;
+}
+
+/* LD B, A (opcode 0x47) */
+static inline uint8_t op_ld_b_a(cpu_t *cpu) {
+    cpu->r.b = cpu->r.a;
+    cpu->pc++;
+    return 1;
+}
+
+/* LD C, A (opcode 0x4F) */
+static inline uint8_t op_ld_c_a(cpu_t *cpu) {
+    cpu->r.c = cpu->r.a;
+    cpu->pc++;
+    return 1;
+}
+
 /* LD B, B (opcode 0x40)*/
 static inline uint8_t op_ld_b_b(cpu_t *cpu, mem_t *m) {
     cpu->r.b = cpu->r.b;
@@ -244,6 +293,27 @@ static inline uint8_t op_ld_l_d8(cpu_t *cpu, mem_t *m) {
     return 2;
 }
 
+/* LD D, d8 (opcode 0x16) */
+static inline uint8_t op_ld_d_d8(cpu_t *cpu, mem_t *m) {
+    cpu->r.d = mem_read_byte(m, cpu->pc + 1);
+    cpu->pc += 2;
+    return 2;
+}
+
+/* LD E, d8 (opcode 0x1E) */
+static inline uint8_t op_ld_e_d8(cpu_t *cpu, mem_t *m) {
+    cpu->r.e = mem_read_byte(m, cpu->pc + 1);
+    cpu->pc += 2;
+    return 2;
+}
+
+/* LD H, d8 (opcode 0x26) */
+static inline uint8_t op_ld_h_d8(cpu_t *cpu, mem_t *m) {
+    cpu->r.h = mem_read_byte(m, cpu->pc + 1);
+    cpu->pc += 2;
+    return 2;
+}
+
 /* LD (BC), A (opcode 0x02) */
 static inline uint8_t op_ld_bc_a(cpu_t *cpu, mem_t *m) {
     mem_write_byte(m, cpu->r.bc, cpu->r.a);
@@ -256,6 +326,94 @@ static inline uint8_t op_ld_b_d8(cpu_t *cpu, mem_t *m) {
     cpu->r.b = mem_read_byte(m, cpu->pc + 1);
     cpu->pc += 2;
     return 2;
+}
+
+/* INC D (opcode 0x14) */
+static inline uint8_t op_inc_d(cpu_t *cpu) {
+    uint8_t val = cpu->r.d + 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.d & 0x0F) + 1 > 0x0F);
+    cpu->r.d = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* DEC D (opcode 0x15) */
+static inline uint8_t op_dec_d(cpu_t *cpu) {
+    uint8_t val = cpu->r.d - 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 1);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.d & 0x0F) == 0);
+    cpu->r.d = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* INC E (opcode 0x1C) */
+static inline uint8_t op_inc_e(cpu_t *cpu) {
+    uint8_t val = cpu->r.e + 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.e & 0x0F) + 1 > 0x0F);
+    cpu->r.e = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* DEC E (opcode 0x1D) */
+static inline uint8_t op_dec_e(cpu_t *cpu) {
+    uint8_t val = cpu->r.e - 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 1);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.e & 0x0F) == 0);
+    cpu->r.e = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* INC H (opcode 0x24) */
+static inline uint8_t op_inc_h(cpu_t *cpu) {
+    uint8_t val = cpu->r.h + 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.h & 0x0F) + 1 > 0x0F);
+    cpu->r.h = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* DEC H (opcode 0x25) */
+static inline uint8_t op_dec_h(cpu_t *cpu) {
+    uint8_t val = cpu->r.h - 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 1);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.h & 0x0F) == 0);
+    cpu->r.h = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* INC L (opcode 0x2C) */
+static inline uint8_t op_inc_l(cpu_t *cpu) {
+    uint8_t val = cpu->r.l + 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.l & 0x0F) + 1 > 0x0F);
+    cpu->r.l = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* DEC L (opcode 0x2D) */
+static inline uint8_t op_dec_l(cpu_t *cpu) {
+    uint8_t val = cpu->r.l - 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 1);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.l & 0x0F) == 0);
+    cpu->r.l = val;
+    cpu->pc++;
+    return 1;
 }
 
 /* INC B (opcode 0x04) */
@@ -362,6 +520,13 @@ static inline uint8_t op_ld_a_bc(cpu_t *cpu, mem_t *m) {
 /* LD A, (DE) (opcode 0x1A) */
 static inline uint8_t op_ld_a_de(cpu_t *cpu, mem_t *m) {
     cpu->r.a = mem_read_byte(m, cpu->r.de);
+    cpu->pc++;
+    return 2;
+}
+
+/* LD A, (HL) (opcode 0x7E) */
+static inline uint8_t op_ld_a_hl(cpu_t *cpu, mem_t *m) {
+    cpu->r.a = mem_read_byte(m, cpu->r.hl);
     cpu->pc++;
     return 2;
 }
