@@ -127,7 +127,7 @@ void mem_write_word(mem_t *m, uint16_t adr, uint16_t value)
 mem_t *mem_create(const uint8_t *rom_image, size_t rom_size){
     mem_t *memory = (mem_t *) calloc(1, sizeof(mem_t));
     if (!memory) {
-        return nullptr;
+        return NULL;
     }
     memory->rom = rom_image;
     memory->rom_size = rom_size;
