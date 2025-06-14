@@ -42,7 +42,7 @@ TEST(cpu_step_one_simple_step_success, cpu_step) {
     EXPECT_EQ(ret, 0);
 }
 
-TEST(cpu_step_some_simple_steps_success, cpu_step) {
+TEST(cpu_step_bus_success, cpu_step) {
     uint8_t rom_image[ROM_SIZE]; 
     char rom_path[256];
     cpu_t cpu = {};
@@ -50,6 +50,25 @@ TEST(cpu_step_some_simple_steps_success, cpu_step) {
     
     cpu_reset(&cpu);
     snprintf(rom_path, sizeof(rom_path), "%s/gbmicrotest/cpu_bus_1.gb", TEST_ROM_DIR);
+    ret = load_rom(rom_path, rom_image, ROM_SIZE);
+    EXPECT_EQ(ret, 0);
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    for (int i=0; i<100; i++){
+        ret = cpu_step(&cpu, mem);
+        EXPECT_EQ(ret, 0);
+    }
+    EXPECT_EQ(0x01, gb_microtest_check_result(mem));
+}
+
+TEST(cpu_step_oam_lock_success, cpu_step) {
+uint8_t rom_image[ROM_SIZE]; 
+    char rom_path[256];
+    cpu_t cpu = {};
+    int ret = 0;
+    
+    cpu_reset(&cpu);
+    snprintf(rom_path, sizeof(rom_path), "%s/gbmicrotest/000-oam_lock.gb", TEST_ROM_DIR);
     ret = load_rom(rom_path, rom_image, ROM_SIZE);
     EXPECT_EQ(ret, 0);
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
