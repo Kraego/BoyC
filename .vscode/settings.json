@@ -1,6 +1,10 @@
 {
     "C_Cpp.errorSquiggles": "enabled",
     "files.associations": {
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "chrono": "cpp",
+        "functional": "cpp",
+        "compare": "cpp",
+        "random": "cpp"
     }
 }
