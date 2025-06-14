@@ -66,7 +66,7 @@ static inline uint8_t op_jp_a16(cpu_t *cpu, mem_t *m){
 }
 
 /* RLCA (opcode 0x07)*/
-static inline uint8_t op_rlca(cpu_t *cpu){  
+static inline uint8_t op_rlca(cpu_t *cpu){
     uint8_t a = cpu->r.a;
     uint8_t carry = (a >> 7) & 0x01;
 
@@ -78,6 +78,21 @@ static inline uint8_t op_rlca(cpu_t *cpu){
     cpu_set_flag(&cpu->r, F_C, carry);
     cpu->pc++;
     return 1;  
+}
+
+/* RRCA (opcode 0x0F) */
+static inline uint8_t op_rrca(cpu_t *cpu){
+    uint8_t a = cpu->r.a;
+    uint8_t carry = a & 0x01;
+
+    cpu->r.a = (a >> 1) | (carry << 7);
+
+    cpu_set_flag(&cpu->r, F_Z, 0); // RRCA always resets Z
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, 0);
+    cpu_set_flag(&cpu->r, F_C, carry);
+    cpu->pc++;
+    return 1;
 }
 
 /* INC BC (opcode 0x03)*/
@@ -127,6 +142,14 @@ static inline uint8_t op_jr_nz_s8(cpu_t *cpu, mem_t *m) {
 
     cpu->pc += 2;
     return 2;
+}
+
+/* LD (a16), SP (opcode 0x08) */
+static inline uint8_t op_ld_a16_sp(cpu_t *cpu, mem_t *m){
+    uint16_t addr = mem_read_word(m, cpu->pc + 1);
+    mem_write_word(m, addr, cpu->sp);
+    cpu->pc += 3;
+    return 5;
 }
 
 /* LD (a16), A  (opcode 0xEA)*/
