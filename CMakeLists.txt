@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.14)
 project(MyCTestProject C CXX)
 
+find_package(SDL2 REQUIRED)
+
 # Configure include paths
 include_directories(
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_SOURCE_DIR}/src/cpu
   ${CMAKE_SOURCE_DIR}/src/mem
   ${CMAKE_SOURCE_DIR}/src/rom
+  ${CMAKE_SOURCE_DIR}/src/display
+  ${SDL2_INCLUDE_DIRS}
 )
 
 # Enable testing
@@ -17,11 +21,14 @@ include(CTest)
 set(CMAKE_C_STANDARD 11)
 
 # Add your C source
-add_executable(boyc_exec 
+add_executable(boyc_exec
   src/main.cpp
   src/mem/mem.cpp
   src/cpu/cpu.cpp
-  src/rom/rom.cpp)
+  src/rom/rom.cpp
+  src/display/display.cpp)
+
+target_link_libraries(boyc_exec SDL2::SDL2)
 
 # Download and add GoogleTest
 include(FetchContent)
@@ -38,12 +45,14 @@ FetchContent_MakeAvailable(googletest)
 # Add test executable
 add_executable(tests
   tests/cpu/cpu-test.cpp
+  tests/display/display-test.cpp
   src/cpu/cpu.cpp
   src/mem/mem.cpp
-  src/rom/rom.cpp)
+  src/rom/rom.cpp
+  src/display/display.cpp)
 
   
-  target_link_libraries(tests gtest_main)
+target_link_libraries(tests gtest_main SDL2::SDL2)
   
 # Register the tests
 include(GoogleTest)

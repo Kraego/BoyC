@@ -3,6 +3,8 @@
 #include "mem.h"
 #include "rom.h"
 #include <stdlib.h>
+#include "display.h"
+#include <SDL.h>
 
 int quit = 0;
 
@@ -29,7 +31,22 @@ int main(int argc, char const *argv[])
     cpu_t cpu;
     cpu_reset(&cpu);
 
+    if (display_init(160, 144) != 0) {
+        mem_reset(mem);
+        free(cart_image);
+        return 1;
+    }
+
+    uint32_t frame[160 * 144] = {0};
+
     while (!quit) {
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                quit = 1;
+            }
+        }
+
         uint64_t start_cycles = cpu.cycles;
 
         cpu_step(&cpu, mem);             /* advance one instruction */
@@ -40,9 +57,15 @@ int main(int argc, char const *argv[])
         // timer_step(&timer, delta);
         // /* …v-blank sync / input / audio flush… */
         (void)start_cycles; /* silence unused variable warning */
+
+        display_render(frame);
+        SDL_Delay(16);
     }
+
+    display_destroy();
 
     mem_reset(mem);
     free(cart_image);
     return 0;
 }
+
