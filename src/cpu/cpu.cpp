@@ -60,9 +60,8 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             cycles = op_ld_b_d8(cpu, m);
             break;
         case 0x08:
-            /* LD (a16), SP not implemented */
-            fprintf(stderr, "Opcode 08 not implemented\n");
-            return -1;
+            cycles = op_ld_a16_sp(cpu, m);
+            break;
         case 0x09:
             cycles = op_add_hl_bc(cpu);
             break;
@@ -82,9 +81,8 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             cycles = op_ld_c_d8(cpu, m);
             break;
         case 0x0F:
-            /* RRCA not implemented */
-            fprintf(stderr, "Opcode 0F not implemented\n");
-            return -1;
+            cycles = op_rrca(cpu);
+            break;
         case 0x07:
             cycles = op_rlca(cpu);
             break;
@@ -156,6 +154,7 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             break;
         case 0xE6:
             cycles = op_and_d8(cpu, m);
+            break;
         case 0xEA:
             cycles = op_ld_a16_a(cpu, m);
             break;
