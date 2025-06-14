@@ -473,6 +473,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0xF6:
             cycles = op_or_d8(cpu, m);
             break;
+        case 0xF3:
+            cycles = op_di(cpu);
+            break;
         case 0xC2:
             cycles = op_jp_nz_a16(cpu, m);
             break;
