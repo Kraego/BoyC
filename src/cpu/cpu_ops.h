@@ -932,6 +932,296 @@ static inline uint8_t op_ld_a_a(cpu_t *cpu) {
     return 1;
 }
 
+/* Helper for 8-bit ADD operations */
+static inline void op_add_a(cpu_t *cpu, uint8_t value)
+{
+    uint16_t res = cpu->r.a + value;
+    cpu_set_flag(&cpu->r, F_Z, (res & 0xFF) == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, ((cpu->r.a & 0x0F) + (value & 0x0F)) > 0x0F);
+    cpu_set_flag(&cpu->r, F_C, res > 0xFF);
+    cpu->r.a = (uint8_t)res;
+}
+
+/* Helper for 8-bit SUB operations */
+static inline void op_sub_a(cpu_t *cpu, uint8_t value)
+{
+    uint16_t res = cpu->r.a - value;
+    cpu_set_flag(&cpu->r, F_Z, (res & 0xFF) == 0);
+    cpu_set_flag(&cpu->r, F_N, 1);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.a & 0x0F) < (value & 0x0F));
+    cpu_set_flag(&cpu->r, F_C, cpu->r.a < value);
+    cpu->r.a = (uint8_t)res;
+}
+
+/* Helper for 8-bit AND operations */
+static inline void op_and_a(cpu_t *cpu, uint8_t value)
+{
+    cpu->r.a &= value;
+    cpu_set_flag(&cpu->r, F_Z, cpu->r.a == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, 1);
+    cpu_set_flag(&cpu->r, F_C, 0);
+}
+
+/* Helper for 8-bit OR operations */
+static inline void op_or_a(cpu_t *cpu, uint8_t value)
+{
+    cpu->r.a |= value;
+    cpu_set_flag(&cpu->r, F_Z, cpu->r.a == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, 0);
+    cpu_set_flag(&cpu->r, F_C, 0);
+}
+
+/* ADD A, B (opcode 0x80) */
+static inline uint8_t op_add_a_b(cpu_t *cpu) {
+    op_add_a(cpu, cpu->r.b);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADD A, C (opcode 0x81) */
+static inline uint8_t op_add_a_c(cpu_t *cpu) {
+    op_add_a(cpu, cpu->r.c);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADD A, D (opcode 0x82) */
+static inline uint8_t op_add_a_d(cpu_t *cpu) {
+    op_add_a(cpu, cpu->r.d);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADD A, E (opcode 0x83) */
+static inline uint8_t op_add_a_e(cpu_t *cpu) {
+    op_add_a(cpu, cpu->r.e);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADD A, H (opcode 0x84) */
+static inline uint8_t op_add_a_h(cpu_t *cpu) {
+    op_add_a(cpu, cpu->r.h);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADD A, L (opcode 0x85) */
+static inline uint8_t op_add_a_l(cpu_t *cpu) {
+    op_add_a(cpu, cpu->r.l);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADD A, (HL) (opcode 0x86) */
+static inline uint8_t op_add_a_hl(cpu_t *cpu, mem_t *m) {
+    op_add_a(cpu, mem_read_byte(m, cpu->r.hl));
+    cpu->pc++;
+    return 2;
+}
+
+/* ADD A, A (opcode 0x87) */
+static inline uint8_t op_add_a_a(cpu_t *cpu) {
+    op_add_a(cpu, cpu->r.a);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADD A, d8 (opcode 0xC6) */
+static inline uint8_t op_add_a_d8(cpu_t *cpu, mem_t *m) {
+    uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
+    op_add_a(cpu, d8);
+    cpu->pc += 2;
+    return 2;
+}
+
+/* SUB B (opcode 0x90) */
+static inline uint8_t op_sub_b(cpu_t *cpu) {
+    op_sub_a(cpu, cpu->r.b);
+    cpu->pc++;
+    return 1;
+}
+
+/* SUB C (opcode 0x91) */
+static inline uint8_t op_sub_c(cpu_t *cpu) {
+    op_sub_a(cpu, cpu->r.c);
+    cpu->pc++;
+    return 1;
+}
+
+/* SUB D (opcode 0x92) */
+static inline uint8_t op_sub_d(cpu_t *cpu) {
+    op_sub_a(cpu, cpu->r.d);
+    cpu->pc++;
+    return 1;
+}
+
+/* SUB E (opcode 0x93) */
+static inline uint8_t op_sub_e(cpu_t *cpu) {
+    op_sub_a(cpu, cpu->r.e);
+    cpu->pc++;
+    return 1;
+}
+
+/* SUB H (opcode 0x94) */
+static inline uint8_t op_sub_h(cpu_t *cpu) {
+    op_sub_a(cpu, cpu->r.h);
+    cpu->pc++;
+    return 1;
+}
+
+/* SUB L (opcode 0x95) */
+static inline uint8_t op_sub_l(cpu_t *cpu) {
+    op_sub_a(cpu, cpu->r.l);
+    cpu->pc++;
+    return 1;
+}
+
+/* SUB (HL) (opcode 0x96) */
+static inline uint8_t op_sub_hl(cpu_t *cpu, mem_t *m) {
+    op_sub_a(cpu, mem_read_byte(m, cpu->r.hl));
+    cpu->pc++;
+    return 2;
+}
+
+/* SUB A (opcode 0x97) */
+static inline uint8_t op_sub_a_a(cpu_t *cpu) {
+    op_sub_a(cpu, cpu->r.a);
+    cpu->pc++;
+    return 1;
+}
+
+/* SUB d8 (opcode 0xD6) */
+static inline uint8_t op_sub_d8(cpu_t *cpu, mem_t *m) {
+    uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
+    op_sub_a(cpu, d8);
+    cpu->pc += 2;
+    return 2;
+}
+
+/* AND B (opcode 0xA0) */
+static inline uint8_t op_and_b(cpu_t *cpu) {
+    op_and_a(cpu, cpu->r.b);
+    cpu->pc++;
+    return 1;
+}
+
+/* AND C (opcode 0xA1) */
+static inline uint8_t op_and_c(cpu_t *cpu) {
+    op_and_a(cpu, cpu->r.c);
+    cpu->pc++;
+    return 1;
+}
+
+/* AND D (opcode 0xA2) */
+static inline uint8_t op_and_d(cpu_t *cpu) {
+    op_and_a(cpu, cpu->r.d);
+    cpu->pc++;
+    return 1;
+}
+
+/* AND E (opcode 0xA3) */
+static inline uint8_t op_and_e(cpu_t *cpu) {
+    op_and_a(cpu, cpu->r.e);
+    cpu->pc++;
+    return 1;
+}
+
+/* AND H (opcode 0xA4) */
+static inline uint8_t op_and_h(cpu_t *cpu) {
+    op_and_a(cpu, cpu->r.h);
+    cpu->pc++;
+    return 1;
+}
+
+/* AND L (opcode 0xA5) */
+static inline uint8_t op_and_l(cpu_t *cpu) {
+    op_and_a(cpu, cpu->r.l);
+    cpu->pc++;
+    return 1;
+}
+
+/* AND (HL) (opcode 0xA6) */
+static inline uint8_t op_and_hl(cpu_t *cpu, mem_t *m) {
+    op_and_a(cpu, mem_read_byte(m, cpu->r.hl));
+    cpu->pc++;
+    return 2;
+}
+
+/* AND A (opcode 0xA7) */
+static inline uint8_t op_and_a_a(cpu_t *cpu) {
+    op_and_a(cpu, cpu->r.a);
+    cpu->pc++;
+    return 1;
+}
+
+/* OR B (opcode 0xB0) */
+static inline uint8_t op_or_b(cpu_t *cpu) {
+    op_or_a(cpu, cpu->r.b);
+    cpu->pc++;
+    return 1;
+}
+
+/* OR C (opcode 0xB1) */
+static inline uint8_t op_or_c(cpu_t *cpu) {
+    op_or_a(cpu, cpu->r.c);
+    cpu->pc++;
+    return 1;
+}
+
+/* OR D (opcode 0xB2) */
+static inline uint8_t op_or_d(cpu_t *cpu) {
+    op_or_a(cpu, cpu->r.d);
+    cpu->pc++;
+    return 1;
+}
+
+/* OR E (opcode 0xB3) */
+static inline uint8_t op_or_e(cpu_t *cpu) {
+    op_or_a(cpu, cpu->r.e);
+    cpu->pc++;
+    return 1;
+}
+
+/* OR H (opcode 0xB4) */
+static inline uint8_t op_or_h(cpu_t *cpu) {
+    op_or_a(cpu, cpu->r.h);
+    cpu->pc++;
+    return 1;
+}
+
+/* OR L (opcode 0xB5) */
+static inline uint8_t op_or_l(cpu_t *cpu) {
+    op_or_a(cpu, cpu->r.l);
+    cpu->pc++;
+    return 1;
+}
+
+/* OR (HL) (opcode 0xB6) */
+static inline uint8_t op_or_hl(cpu_t *cpu, mem_t *m) {
+    op_or_a(cpu, mem_read_byte(m, cpu->r.hl));
+    cpu->pc++;
+    return 2;
+}
+
+/* OR A (opcode 0xB7) */
+static inline uint8_t op_or_a_a(cpu_t *cpu) {
+    op_or_a(cpu, cpu->r.a);
+    cpu->pc++;
+    return 1;
+}
+
+/* OR d8 (opcode 0xF6) */
+static inline uint8_t op_or_d8(cpu_t *cpu, mem_t *m) {
+    uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
+    op_or_a(cpu, d8);
+    cpu->pc += 2;
+    return 2;
+}
+
 
 
 
