@@ -2,9 +2,10 @@
 #include "cpu.h"
 #include "mem.h"
 #include "rom.h"
-#include <stdio.h>
+#include "test-helper.h"
 
-#define ROM_SIZE 0x8000 // 32KB
+
+#define ROM_SIZE        (0x8000) // 32KB
 
 TEST(cpu_dump_test_sueccess, cpu_dump) {
     cpu_t cpu = {};
@@ -53,8 +54,9 @@ TEST(cpu_step_some_simple_steps_success, cpu_step) {
     EXPECT_EQ(ret, 0);
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
 
-    for (int i=0; i<100; i++){
+    for (int i=0; i<1000; i++){
         ret = cpu_step(&cpu, mem);
         EXPECT_EQ(ret, 0);
     }
+    EXPECT_EQ(0x01, gb_microtest_check_result(mem));
 }

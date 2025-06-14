@@ -46,10 +46,13 @@ FetchContent_MakeAvailable(googletest)
 add_executable(tests
   tests/cpu/cpu-test.cpp
   tests/display/display-test.cpp
+  tests/helper/test-helper.cpp
   src/cpu/cpu.cpp
   src/mem/mem.cpp
   src/rom/rom.cpp
   src/display/display.cpp)
+target_include_directories(tests PRIVATE
+  tests/helper)
 
   
 target_link_libraries(tests gtest_main SDL2::SDL2)
