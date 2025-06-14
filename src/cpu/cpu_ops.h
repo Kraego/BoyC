@@ -103,11 +103,51 @@ static inline uint8_t op_inc_bc(cpu_t *cpu){
 }
 
 /* LD HL, d16  (opcode 0x21)*/
-static inline uint8_t op_ld_hl_d16(cpu_t *cpu, mem_t *m){  
+static inline uint8_t op_ld_hl_d16(cpu_t *cpu, mem_t *m){
     uint16_t d16 = mem_read_word(m, cpu->pc + 1);
     cpu->r.hl = d16;
     cpu->pc += 3;
-    return 3;  
+    return 3;
+}
+
+/* LD SP, d16 (opcode 0x31) */
+static inline uint8_t op_ld_sp_d16(cpu_t *cpu, mem_t *m){
+    uint16_t d16 = mem_read_word(m, cpu->pc + 1);
+    cpu->sp = d16;
+    cpu->pc += 3;
+    return 3;
+}
+
+/* LD (HL+), A (opcode 0x22) */
+static inline uint8_t op_ld_hl_inc_a(cpu_t *cpu, mem_t *m){
+    mem_write_byte(m, cpu->r.hl, cpu->r.a);
+    cpu->r.hl++;
+    cpu->pc++;
+    return 2;
+}
+
+/* LD (HL-), A (opcode 0x32) */
+static inline uint8_t op_ld_hl_dec_a(cpu_t *cpu, mem_t *m){
+    mem_write_byte(m, cpu->r.hl, cpu->r.a);
+    cpu->r.hl--;
+    cpu->pc++;
+    return 2;
+}
+
+/* LD A, (HL+) (opcode 0x2A) */
+static inline uint8_t op_ld_a_hl_inc(cpu_t *cpu, mem_t *m){
+    cpu->r.a = mem_read_byte(m, cpu->r.hl);
+    cpu->r.hl++;
+    cpu->pc++;
+    return 2;
+}
+
+/* LD A, (HL-) (opcode 0x3A) */
+static inline uint8_t op_ld_a_hl_dec(cpu_t *cpu, mem_t *m){
+    cpu->r.a = mem_read_byte(m, cpu->r.hl);
+    cpu->r.hl--;
+    cpu->pc++;
+    return 2;
 }
 
 /* LD A, d8  (opcode 0x3E)*/
