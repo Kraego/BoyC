@@ -10,6 +10,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/mem
   ${CMAKE_SOURCE_DIR}/src/rom
   ${CMAKE_SOURCE_DIR}/src/display
+  ${CMAKE_SOURCE_DIR}/src/ppu
   ${SDL2_INCLUDE_DIRS}
 )
 
@@ -26,7 +27,8 @@ add_executable(boyc_exec
   src/mem/mem.cpp
   src/cpu/cpu.cpp
   src/rom/rom.cpp
-  src/display/display.cpp)
+  src/display/display.cpp
+  src/ppu/ppu.cpp)
 
 target_link_libraries(boyc_exec SDL2::SDL2)
 
@@ -49,7 +51,8 @@ add_executable(tests
   src/cpu/cpu.cpp
   src/mem/mem.cpp
   src/rom/rom.cpp
-  src/display/display.cpp)
+  src/display/display.cpp
+  src/ppu/ppu.cpp)
 
   
 target_link_libraries(tests gtest_main SDL2::SDL2)
