@@ -80,6 +80,15 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x0E:
             cycles = op_ld_c_d8(cpu, m);
             break;
+        case 0x14:
+            cycles = op_inc_d(cpu);
+            break;
+        case 0x15:
+            cycles = op_dec_d(cpu);
+            break;
+        case 0x16:
+            cycles = op_ld_d_d8(cpu, m);
+            break;
         case 0x0F:
             cycles = op_rrca(cpu);
             break;
@@ -104,6 +113,15 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x1B:
             cycles = op_dec_de(cpu);
             break;
+        case 0x1C:
+            cycles = op_inc_e(cpu);
+            break;
+        case 0x1D:
+            cycles = op_dec_e(cpu);
+            break;
+        case 0x1E:
+            cycles = op_ld_e_d8(cpu, m);
+            break;
         case 0x18:
             cycles = op_jr_s8(cpu, m);
             break;
@@ -113,11 +131,26 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x21:
             cycles = op_ld_hl_d16(cpu, m);
             break;
+        case 0x24:
+            cycles = op_inc_h(cpu);
+            break;
+        case 0x25:
+            cycles = op_dec_h(cpu);
+            break;
+        case 0x26:
+            cycles = op_ld_h_d8(cpu, m);
+            break;
         case 0x28:
-            cycles = op_jp_z_s8(cpu, m);
+            cycles = op_jr_z_s8(cpu, m);
             break;
         case 0x2E:
             cycles = op_ld_l_d8(cpu, m);
+            break;
+        case 0x2C:
+            cycles = op_inc_l(cpu);
+            break;
+        case 0x2D:
+            cycles = op_dec_l(cpu);
             break;
         case 0x40:
             cycles = op_ld_b_b(cpu, m);
@@ -125,17 +158,203 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x41:
             cycles = op_ld_b_c(cpu, m);
             break;
+        case 0x42:
+            cycles = op_ld_b_d(cpu);
+            break;
+        case 0x43:
+            cycles = op_ld_b_e(cpu);
+            break;
+        case 0x44:
+            cycles = op_ld_b_h(cpu);
+            break;
+        case 0x45:
+            cycles = op_ld_b_l(cpu);
+            break;
+        case 0x46:
+            cycles = op_ld_b_hl(cpu, m);
+            break;
+        case 0x47:
+            cycles = op_ld_b_a(cpu);
+            break;
+        case 0x48:
+            cycles = op_ld_c_b(cpu);
+            break;
+        case 0x49:
+            cycles = op_ld_c_c(cpu);
+            break;
+        case 0x4A:
+            cycles = op_ld_c_d(cpu);
+            break;
+        case 0x4B:
+            cycles = op_ld_c_e(cpu);
+            break;
+        case 0x4C:
+            cycles = op_ld_c_h(cpu);
+            break;
+        case 0x4D:
+            cycles = op_ld_c_l(cpu);
+            break;
+        case 0x4E:
+            cycles = op_ld_c_hl(cpu, m);
+            break;
+        case 0x4F:
+            cycles = op_ld_c_a(cpu);
+            break;
+        case 0x50:
+            cycles = op_ld_d_b(cpu);
+            break;
+        case 0x51:
+            cycles = op_ld_d_c(cpu);
+            break;
+        case 0x52:
+            cycles = op_ld_d_d(cpu);
+            break;
+        case 0x53:
+            cycles = op_ld_d_e(cpu);
+            break;
+        case 0x54:
+            cycles = op_ld_d_h(cpu);
+            break;
+        case 0x55:
+            cycles = op_ld_d_l(cpu);
+            break;
+        case 0x56:
+            cycles = op_ld_d_hl(cpu, m);
+            break;
+        case 0x57:
+            cycles = op_ld_d_a(cpu);
+            break;
+        case 0x58:
+            cycles = op_ld_e_b(cpu);
+            break;
+        case 0x59:
+            cycles = op_ld_e_c(cpu);
+            break;
+        case 0x5A:
+            cycles = op_ld_e_d(cpu);
+            break;
+        case 0x5B:
+            cycles = op_ld_e_e(cpu);
+            break;
+        case 0x5C:
+            cycles = op_ld_e_h(cpu);
+            break;
+        case 0x5D:
+            cycles = op_ld_e_l(cpu);
+            break;
+        case 0x5E:
+            cycles = op_ld_e_hl(cpu, m);
+            break;
+        case 0x5F:
+            cycles = op_ld_e_a(cpu);
+            break;
+        case 0x60:
+            cycles = op_ld_h_b(cpu);
+            break;
+        case 0x61:
+            cycles = op_ld_h_c(cpu);
+            break;
+        case 0x62:
+            cycles = op_ld_h_d(cpu);
+            break;
+        case 0x63:
+            cycles = op_ld_h_e(cpu);
+            break;
+        case 0x64:
+            cycles = op_ld_h_h(cpu);
+            break;
+        case 0x65:
+            cycles = op_ld_h_l(cpu);
+            break;
+        case 0x66:
+            cycles = op_ld_h_hl(cpu, m);
+            break;
+        case 0x67:
+            cycles = op_ld_h_a(cpu);
+            break;
+        case 0x68:
+            cycles = op_ld_l_b(cpu);
+            break;
+        case 0x69:
+            cycles = op_ld_l_c(cpu);
+            break;
+        case 0x6A:
+            cycles = op_ld_l_d(cpu);
+            break;
+        case 0x6B:
+            cycles = op_ld_l_e(cpu);
+            break;
+        case 0x6C:
+            cycles = op_ld_l_h(cpu);
+            break;
+        case 0x6D:
+            cycles = op_ld_l_l(cpu);
+            break;
+        case 0x6E:
+            cycles = op_ld_l_hl(cpu, m);
+            break;
+        case 0x6F:
+            cycles = op_ld_l_a(cpu);
+            break;
+        case 0x70:
+            cycles = op_ld_hl_b(cpu, m);
+            break;
+        case 0x71:
+            cycles = op_ld_hl_c(cpu, m);
+            break;
+        case 0x72:
+            cycles = op_ld_hl_d(cpu, m);
+            break;
+        case 0x73:
+            cycles = op_ld_hl_e(cpu, m);
+            break;
+        case 0x74:
+            cycles = op_ld_hl_h(cpu, m);
+            break;
+        case 0x75:
+            cycles = op_ld_hl_l(cpu, m);
+            break;
+        case 0x34:
+            cycles = op_inc_mem_hl(cpu, m);
+            break;
+        case 0x35:
+            cycles = op_dec_mem_hl(cpu, m);
+            break;
+        case 0x36:
+            cycles = op_ld_hl_d8(cpu, m);
+            break;
         case 0x3E:
             cycles = op_ld_a_d8(cpu, m);
             break;
         case 0x77:
             cycles = op_ld_hl_a(cpu, m);
             break;
+        case 0x7E:
+            cycles = op_ld_a_hl(cpu, m);
+            break;
         case 0x78:
             cycles = op_ld_a_b(cpu);
             break;
+        case 0x79:
+            cycles = op_ld_a_c(cpu);
+            break;
+        case 0x7A:
+            cycles = op_ld_a_d(cpu);
+            break;
+        case 0x7B:
+            cycles = op_ld_a_e(cpu);
+            break;
+        case 0x7C:
+            cycles = op_ld_a_h(cpu);
+            break;
+        case 0x7D:
+            cycles = op_ld_a_l(cpu);
+            break;
+        case 0x7F:
+            cycles = op_ld_a_a(cpu);
+            break;
         case 0xC2:
-            cycles = op_jp_z_a16(cpu, m);
+            cycles = op_jp_nz_a16(cpu, m);
             break;
         case 0xC3: 
             cycles = op_jp_a16(cpu, m);
