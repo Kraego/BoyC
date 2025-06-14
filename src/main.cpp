@@ -5,6 +5,8 @@
 #include "mem.h"
 #include "rom.h"
 #include "display.h"
+#include "ppu.h"
+#include <SDL.h>
 
 int quit = 0;
 
@@ -30,14 +32,15 @@ int main(int argc, char const *argv[])
     mem_t *mem = mem_create(cart_image, cart_size);
     cpu_t cpu;
     cpu_reset(&cpu);
+    ppu_t ppu;
+    uint32_t frame[160 * 144] = {0};
+    ppu_init(&ppu, frame);
 
     if (display_init(160, 144) != 0) {
         mem_reset(mem);
         free(cart_image);
         return 1;
     }
-
-    uint32_t frame[160 * 144] = {0};
 
     while (!quit) {
         SDL_Event e;
@@ -55,18 +58,17 @@ int main(int argc, char const *argv[])
 
         cpu_step(&cpu, mem);             /* advance one instruction */
 
-        // uint64_t delta = cpu.cycles - start_cycles;
-        // ppu_step(&ppu, delta, mem);         /* keep PPU in lock-step   */
-        // apu_step(&apu, delta);
-        // timer_step(&timer, delta);
-        // /* …v-blank sync / input / audio flush… */
-        (void)start_cycles; /* silence unused variable warning */
+        uint64_t delta = cpu.cycles - start_cycles;
+        ppu_step(&ppu, delta, mem);         /* keep PPU in lock-step   */
+        (void)delta; /* silence unused variable warning if not used */
 
         display_render(frame);
         SDL_Delay(16);
     }
 
     display_destroy();
+
+    ppu_reset(&ppu);
 
     mem_reset(mem);
     free(cart_image);

@@ -19,6 +19,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/mem
   ${CMAKE_SOURCE_DIR}/src/rom
   ${CMAKE_SOURCE_DIR}/src/display
+  ${CMAKE_SOURCE_DIR}/src/ppu
   ${SDL2_INCLUDE_DIRS}
 )
 
@@ -35,7 +36,8 @@ add_executable(boyc_exec
   src/mem/mem.cpp
   src/cpu/cpu.cpp
   src/rom/rom.cpp
-  ${DISPLAY_SRC})
+  src/display/display.cpp
+  src/ppu/ppu.cpp)
 
 target_link_libraries(boyc_exec ${DISPLAY_LIBS})
 
@@ -59,11 +61,12 @@ add_executable(tests
   src/cpu/cpu.cpp
   src/mem/mem.cpp
   src/rom/rom.cpp
-  ${DISPLAY_SRC})
+  src/display/display.cpp
+  src/ppu/ppu.cpp)
+
 target_include_directories(tests PRIVATE
   tests/helper)
 
-  
 target_link_libraries(tests gtest_main ${DISPLAY_LIBS})
   
 # Register the tests
