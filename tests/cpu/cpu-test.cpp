@@ -241,6 +241,7 @@ TEST(cpu_step_arithmetic_ops, cpu_step)
     cpu_t cpu = {};
 
     cpu_reset(&cpu);
+    cpu.r.a = 0x00;
     rom_image[cpu.pc] = 0x06; // LD B, d8
     rom_image[cpu.pc + 1] = 0x01;
     rom_image[cpu.pc + 2] = 0x80; // ADD A, B
