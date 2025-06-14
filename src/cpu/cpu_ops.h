@@ -85,6 +85,22 @@ static inline uint8_t op_jr_s8(cpu_t *cpu, mem_t *m){
     return 3;
 }
 
+/* LD (a16), A  (opcode 0xEA)*/
+static inline uint8_t op_ld_a16_a(cpu_t *cpu, mem_t *m){
+    uint16_t target = mem_read_word(m, cpu->pc + 1);
+    mem_write_word(m, target, cpu->r.a);
+    cpu->pc += 3;
+    return 4;
+}
+
+/* LD A, (a16) (opcode 0xFA)*/
+static inline uint8_t op_ld_a_a16(cpu_t *cpu, mem_t *m){  
+    uint16_t a16 = mem_read_word(m, cpu->pc + 1);
+    cpu->r.a = a16;
+    cpu->pc += 3;
+    return 4;  
+}
+
 #ifdef __cplusplus
 }
 #endif

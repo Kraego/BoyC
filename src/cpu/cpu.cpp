@@ -65,6 +65,12 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0xC3: 
             cycles = op_jp_a16(cpu, m);
             break;
+        case 0xFA:
+            cycles = op_ld_a_a16(cpu, m);
+            break;
+        case 0xEA:
+            cycles = op_ld_a16_a(cpu, m);
+            break;
         default:   
             fprintf(stderr,"Unknown opcode %x\n", opcode); 
             return -1;

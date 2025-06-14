@@ -42,14 +42,14 @@ TEST(cpu_step_one_simple_step_success, cpu_step) {
     EXPECT_EQ(ret, 0);
 }
 
-TEST(cpu_step_bus_success, cpu_step) {
+TEST(cpu_step_write_x8000_success, cpu_step) {
     uint8_t rom_image[ROM_SIZE]; 
     char rom_path[256];
     cpu_t cpu = {};
     int ret = 0;
     
     cpu_reset(&cpu);
-    snprintf(rom_path, sizeof(rom_path), "%s/gbmicrotest/cpu_bus_1.gb", TEST_ROM_DIR);
+    snprintf(rom_path, sizeof(rom_path), "%s/gbmicrotest/000-write_to_x8000.gb", TEST_ROM_DIR);
     ret = load_rom(rom_path, rom_image, ROM_SIZE);
     EXPECT_EQ(ret, 0);
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
@@ -73,7 +73,7 @@ uint8_t rom_image[ROM_SIZE];
     EXPECT_EQ(ret, 0);
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
 
-    for (int i=0; i<100; i++){
+    for (int i=0; i<1000; i++){
         ret = cpu_step(&cpu, mem);
         EXPECT_EQ(ret, 0);
     }
