@@ -1,6 +1,5 @@
 #include <cstdio>
 #include <cstdint>
-#include <gtest/gtest.h>
 #include <iostream>
 #include "test-helper.h"
 
