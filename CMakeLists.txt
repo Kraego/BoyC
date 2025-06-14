@@ -67,5 +67,19 @@ target_link_libraries(tests ${DISPLAY_LIBS})
 add_test(NAME boyc_tests COMMAND tests)
 
 # Get Test roms
+include(ExternalProject)
+
+ExternalProject_Add(
+  gb_test_roms
+  URL https://github.com/c-sp/game-boy-test-roms/releases/download/v7.0/game-boy-test-roms-v7.0.zip
+  PREFIX ${CMAKE_BINARY_DIR}/gb_test_roms
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  LOG_DOWNLOAD ON
+  DOWNLOAD_EXTRACT_TIMESTAMP ON
+  )
+
+# Get Test roms
 set(TEST_ROM_DIR "")
 target_compile_definitions(tests PRIVATE TEST_ROM_DIR="${TEST_ROM_DIR}")
