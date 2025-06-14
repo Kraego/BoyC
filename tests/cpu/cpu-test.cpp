@@ -323,3 +323,18 @@ TEST(cpu_step_sp_and_hl_inc_dec_ops, cpu_step)
     EXPECT_EQ(cpu.r.a, 0x66);
     EXPECT_EQ(cpu.r.hl, 0xC000);
 }
+
+TEST(cpu_step_disable_interrupts, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    cpu.ime = 1;
+    rom_image[cpu.pc] = 0xF3; // DI
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.ime, 0);
+}

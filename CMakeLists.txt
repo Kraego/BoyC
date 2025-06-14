@@ -62,9 +62,29 @@ target_include_directories(tests PRIVATE
   tests/ctest)
 
 target_link_libraries(tests ${DISPLAY_LIBS})
-  
-# Register the tests
-add_test(NAME boyc_tests COMMAND tests)
+
+# Register the tests individually so IDEs can display each one
+set(BOYC_TESTS
+  cpu_dump_test_sueccess.cpu_dump
+  cpu_reset_test_success.cpu_reset
+  cpu_step_one_simple_step_success.cpu_step
+  cpu_step_write_x8000_success.cpu_step
+  cpu_step_oam_lock_success.cpu_step
+  cpu_step_vram_unlocked_success.cpu_step
+  cpu_step_ld_d_opcodes.cpu_step
+  cpu_step_ld_a_hl.cpu_step
+  cpu_step_additional_opcodes.cpu_step
+  cpu_step_hl_memory_ops.cpu_step
+  cpu_step_arithmetic_ops.cpu_step
+  cpu_step_sp_and_hl_inc_dec_ops.cpu_step
+  cpu_step_disable_interrupts.cpu_step
+  display_line_test.draw_line
+  display_circle_test.draw_circle
+)
+
+foreach(test_name ${BOYC_TESTS})
+  add_test(NAME ${test_name} COMMAND tests ${test_name})
+endforeach()
 
 # Get Test roms
 include(ExternalProject)

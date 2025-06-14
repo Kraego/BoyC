@@ -11,6 +11,7 @@ typedef void (*ctest_func)(void);
 
 void ctest_register(const char *name, ctest_func func);
 int ctest_run_all(void);
+int ctest_run_by_name(const char *name);
 extern int ctest_current_failed;
 
 #define TEST(suite, name) \

@@ -1262,6 +1262,13 @@ static inline uint8_t op_or_d8(cpu_t *cpu, mem_t *m) {
     return 2;
 }
 
+/* DI (opcode 0xF3) */
+static inline uint8_t op_di(cpu_t *cpu) {
+    cpu->ime = 0;
+    cpu->pc++;
+    return 1;
+}
+
 
 
 
