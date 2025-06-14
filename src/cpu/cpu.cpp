@@ -39,16 +39,72 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
     switch (opcode)
     {
         case 0x00:
-            cycles = nop(cpu);                       
+            cycles = nop(cpu);
             break;
         case 0x01:
             cycles = op_ld_bc_d16(cpu, m);
             break;
+        case 0x02:
+            cycles = op_ld_bc_a(cpu, m);
+            break;
         case 0x03:
             cycles = op_inc_bc(cpu);
             break;
+        case 0x04:
+            cycles = op_inc_b(cpu);
+            break;
+        case 0x05:
+            cycles = op_dec_b(cpu);
+            break;
+        case 0x06:
+            cycles = op_ld_b_d8(cpu, m);
+            break;
+        case 0x08:
+            /* LD (a16), SP not implemented */
+            fprintf(stderr, "Opcode 08 not implemented\n");
+            return -1;
+        case 0x09:
+            cycles = op_add_hl_bc(cpu);
+            break;
+        case 0x0A:
+            cycles = op_ld_a_bc(cpu, m);
+            break;
+        case 0x0B:
+            cycles = op_dec_bc(cpu);
+            break;
+        case 0x0C:
+            cycles = op_inc_c(cpu);
+            break;
+        case 0x0D:
+            cycles = op_dec_c(cpu);
+            break;
+        case 0x0E:
+            cycles = op_ld_c_d8(cpu, m);
+            break;
+        case 0x0F:
+            /* RRCA not implemented */
+            fprintf(stderr, "Opcode 0F not implemented\n");
+            return -1;
         case 0x07:
             cycles = op_rlca(cpu);
+            break;
+        case 0x11:
+            cycles = op_ld_de_d16(cpu, m);
+            break;
+        case 0x12:
+            cycles = op_ld_de_a(cpu, m);
+            break;
+        case 0x13:
+            cycles = op_inc_de(cpu);
+            break;
+        case 0x19:
+            cycles = op_add_hl_de(cpu);
+            break;
+        case 0x1A:
+            cycles = op_ld_a_de(cpu, m);
+            break;
+        case 0x1B:
+            cycles = op_dec_de(cpu);
             break;
         case 0x18:
             cycles = op_jr_s8(cpu, m);
