@@ -135,3 +135,102 @@ TEST(cpu_step_vram_unlocked_success, cpu_step)
         }
     }
 }
+
+TEST(cpu_step_ld_d_opcodes, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    rom_image[cpu.pc] = 0x16;   // LD D, d8
+    rom_image[cpu.pc + 1] = 0x10;
+    rom_image[cpu.pc + 2] = 0x14; // INC D
+    rom_image[cpu.pc + 3] = 0x15; // DEC D
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.r.d, 0x10);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.r.d, 0x11);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.r.d, 0x10);
+}
+
+TEST(cpu_step_ld_a_hl, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    rom_image[cpu.pc] = 0x7E; // LD A, (HL)
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+    cpu.r.hl = 0xC000;
+    mem_write_byte(mem, 0xC000, 0x55);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.r.a, 0x55);
+}
+
+TEST(cpu_step_additional_opcodes, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    rom_image[cpu.pc] = 0x06; // LD B, d8
+    rom_image[cpu.pc + 1] = 0x12;
+    rom_image[cpu.pc + 2] = 0x48; // LD C, B
+    rom_image[cpu.pc + 3] = 0x51; // LD D, C
+    rom_image[cpu.pc + 4] = 0x7A; // LD A, D
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.r.b, 0x12);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.r.c, 0x12);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.r.d, 0x12);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.r.a, 0x12);
+}
+
+TEST(cpu_step_hl_memory_ops, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    rom_image[cpu.pc] = 0x21; // LD HL, d16
+    rom_image[cpu.pc + 1] = 0x00;
+    rom_image[cpu.pc + 2] = 0xC0;
+    rom_image[cpu.pc + 3] = 0x36; // LD (HL), d8
+    rom_image[cpu.pc + 4] = 0x10;
+    rom_image[cpu.pc + 5] = 0x34; // INC (HL)
+    rom_image[cpu.pc + 6] = 0x35; // DEC (HL)
+    rom_image[cpu.pc + 7] = 0x7E; // LD A, (HL)
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD HL, d16
+    EXPECT_EQ(cpu.r.hl, 0xC000);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD (HL), d8
+    EXPECT_EQ(mem_read_byte(mem, 0xC000), 0x10);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // INC (HL)
+    EXPECT_EQ(mem_read_byte(mem, 0xC000), 0x11);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // DEC (HL)
+    EXPECT_EQ(mem_read_byte(mem, 0xC000), 0x10);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD A, (HL)
+    EXPECT_EQ(cpu.r.a, 0x10);
+}
