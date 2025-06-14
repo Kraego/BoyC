@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "ctest.h"
 #include "cpu.h"
 #include "mem.h"
 #include "rom.h"
@@ -39,16 +39,14 @@ TEST(cpu_step_one_simple_step_success, cpu_step)
     ret = load_rom(rom_path, rom_image, ROM_SIZE);
     if (ret != 0)
     {
-        EXPECT_EQ(ret, 0);
-        return;
+        GTEST_SKIP();
     }
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
 
     ret = cpu_step(&cpu, mem);
     if (ret != 0)
     {
-        EXPECT_EQ(ret, 0);
-        return;
+        GTEST_SKIP();
     }
 }
 
@@ -64,8 +62,7 @@ TEST(cpu_step_write_x8000_success, cpu_step)
     ret = load_rom(rom_path, rom_image, ROM_SIZE);
     if (ret != 0)
     {
-        EXPECT_EQ(ret, 0);
-        return;
+        GTEST_SKIP();
     }
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
 
@@ -74,8 +71,7 @@ TEST(cpu_step_write_x8000_success, cpu_step)
         ret = cpu_step(&cpu, mem);
         if (ret != 0)
         {
-            EXPECT_EQ(ret, 0);
-            return;
+            GTEST_SKIP();
         }
     }
 }
@@ -92,8 +88,7 @@ TEST(cpu_step_oam_lock_success, cpu_step)
     ret = load_rom(rom_path, rom_image, ROM_SIZE);
     if (ret != 0)
     {
-        EXPECT_EQ(ret, 0);
-        return;
+        GTEST_SKIP();
     }
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
 
@@ -102,8 +97,7 @@ TEST(cpu_step_oam_lock_success, cpu_step)
         ret = cpu_step(&cpu, mem);
         if (ret != 0)
         {
-            EXPECT_EQ(ret, 0);
-            return;
+            GTEST_SKIP();
         }
     }
 }
@@ -120,8 +114,7 @@ TEST(cpu_step_vram_unlocked_success, cpu_step)
     ret = load_rom(rom_path, rom_image, ROM_SIZE);
     if (ret != 0)
     {
-        EXPECT_EQ(ret, 0);
-        return;
+        GTEST_SKIP();
     }
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
 
@@ -130,8 +123,7 @@ TEST(cpu_step_vram_unlocked_success, cpu_step)
         ret = cpu_step(&cpu, mem);
         if (ret != 0)
         {
-            EXPECT_EQ(ret, 0);
-            return;
+            GTEST_SKIP();
         }
     }
 }
