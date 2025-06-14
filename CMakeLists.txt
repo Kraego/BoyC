@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
 project(MyCTestProject C CXX)
 
+# Allow building without downloading the external test ROMs.
+option(GB_DOWNLOAD_TEST_ROMS "Download Game Boy test ROMs" OFF)
+
 find_package(SDL2 QUIET)
 if (SDL2_FOUND)
   message(STATUS "Using SDL2")
@@ -86,19 +89,21 @@ foreach(test_name ${BOYC_TESTS})
   add_test(NAME ${test_name} COMMAND tests ${test_name})
 endforeach()
 
-# Get Test roms
-include(ExternalProject)
+# Optionally fetch the test ROMs when network access is available
+if(GB_DOWNLOAD_TEST_ROMS)
+  include(ExternalProject)
 
-ExternalProject_Add(
-  gb_test_roms
-  URL https://github.com/c-sp/game-boy-test-roms/releases/download/v7.0/game-boy-test-roms-v7.0.zip
-  PREFIX ${CMAKE_BINARY_DIR}/gb_test_roms
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
-  LOG_DOWNLOAD ON
-  DOWNLOAD_EXTRACT_TIMESTAMP ON
-  )
+  ExternalProject_Add(
+    gb_test_roms
+    URL https://github.com/c-sp/game-boy-test-roms/releases/download/v7.0/game-boy-test-roms-v7.0.zip
+    PREFIX ${CMAKE_BINARY_DIR}/gb_test_roms
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+    LOG_DOWNLOAD ON
+    DOWNLOAD_EXTRACT_TIMESTAMP ON
+    )
+endif()
 
 # Get Test roms
 set(TEST_ROM_DIR "")

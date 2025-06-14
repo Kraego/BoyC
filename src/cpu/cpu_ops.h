@@ -261,6 +261,13 @@ static inline uint8_t op_ld_hl_sp_r8(cpu_t *cpu, mem_t *m) {
     return 3;
 }
 
+/* LD SP, HL (opcode 0xF9)*/
+static inline uint8_t op_ld_sp_hl(cpu_t *cpu) {
+    cpu->sp = cpu->r.hl;
+    cpu->pc++;
+    return 2;
+}
+
 /* LD B, C (opcode 0x41)*/
 static inline uint8_t op_ld_b_c(cpu_t *cpu, mem_t *m) {
     cpu->r.b = cpu->r.c;
@@ -550,6 +557,28 @@ static inline uint8_t op_add_hl_de(cpu_t *cpu) {
     return 2;
 }
 
+/* ADD HL, HL (opcode 0x29) */
+static inline uint8_t op_add_hl_hl(cpu_t *cpu) {
+    uint32_t res = cpu->r.hl + cpu->r.hl;
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, ((cpu->r.hl & 0x0FFF) + (cpu->r.hl & 0x0FFF)) > 0x0FFF);
+    cpu_set_flag(&cpu->r, F_C, res > 0xFFFF);
+    cpu->r.hl = (uint16_t)res;
+    cpu->pc++;
+    return 2;
+}
+
+/* ADD HL, SP (opcode 0x39) */
+static inline uint8_t op_add_hl_sp(cpu_t *cpu) {
+    uint32_t res = cpu->r.hl + cpu->sp;
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, ((cpu->r.hl & 0x0FFF) + (cpu->sp & 0x0FFF)) > 0x0FFF);
+    cpu_set_flag(&cpu->r, F_C, res > 0xFFFF);
+    cpu->r.hl = (uint16_t)res;
+    cpu->pc++;
+    return 2;
+}
+
 /* LD A, (BC) (opcode 0x0A) */
 static inline uint8_t op_ld_a_bc(cpu_t *cpu, mem_t *m) {
     cpu->r.a = mem_read_byte(m, cpu->r.bc);
@@ -581,6 +610,34 @@ static inline uint8_t op_dec_bc(cpu_t *cpu) {
 /* DEC DE (opcode 0x1B) */
 static inline uint8_t op_dec_de(cpu_t *cpu) {
     cpu->r.de--;
+    cpu->pc++;
+    return 2;
+}
+
+/* INC HL (opcode 0x23) */
+static inline uint8_t op_inc_hl(cpu_t *cpu) {
+    cpu->r.hl++;
+    cpu->pc++;
+    return 2;
+}
+
+/* DEC HL (opcode 0x2B) */
+static inline uint8_t op_dec_hl(cpu_t *cpu) {
+    cpu->r.hl--;
+    cpu->pc++;
+    return 2;
+}
+
+/* INC SP (opcode 0x33) */
+static inline uint8_t op_inc_sp(cpu_t *cpu) {
+    cpu->sp++;
+    cpu->pc++;
+    return 2;
+}
+
+/* DEC SP (opcode 0x3B) */
+static inline uint8_t op_dec_sp(cpu_t *cpu) {
+    cpu->sp--;
     cpu->pc++;
     return 2;
 }
@@ -1265,6 +1322,24 @@ static inline uint8_t op_or_d8(cpu_t *cpu, mem_t *m) {
 /* DI (opcode 0xF3) */
 static inline uint8_t op_di(cpu_t *cpu) {
     cpu->ime = 0;
+    cpu->pc++;
+    return 1;
+}
+
+/* SCF (opcode 0x37) */
+static inline uint8_t op_scf(cpu_t *cpu) {
+    cpu_set_flag(&cpu->r, F_C, 1);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, 0);
+    cpu->pc++;
+    return 1;
+}
+
+/* CCF (opcode 0x3F) */
+static inline uint8_t op_ccf(cpu_t *cpu) {
+    cpu_set_flag(&cpu->r, F_C, !cpu_get_flag(&cpu->r, F_C));
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, 0);
     cpu->pc++;
     return 1;
 }
