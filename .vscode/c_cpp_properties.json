@@ -8,7 +8,8 @@
                 "${workspaceFolder}/src/cpu/*",
                 "${workspaceFolder}/src/mem/*",
                 "${workspaceFolder}/src/rom/*",
-                "${workspaceFolder}/tests/helper/*"
+                "${workspaceFolder}/tests/helper/*",
+                "/usr/include/SDL2"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
