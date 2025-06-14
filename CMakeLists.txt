@@ -1,7 +1,16 @@
 cmake_minimum_required(VERSION 3.14)
 project(MyCTestProject C CXX)
 
-find_package(SDL2 REQUIRED)
+find_package(SDL2 QUIET)
+if (SDL2_FOUND)
+  message(STATUS "Using SDL2")
+  set(DISPLAY_SRC src/display/display.cpp)
+  set(DISPLAY_LIBS SDL2::SDL2)
+else()
+  message(STATUS "SDL2 not found - using stub display")
+  set(DISPLAY_SRC src/display/display_stub.cpp)
+  set(DISPLAY_LIBS)
+endif()
 
 # Configure include paths
 include_directories(
@@ -26,9 +35,9 @@ add_executable(boyc_exec
   src/mem/mem.cpp
   src/cpu/cpu.cpp
   src/rom/rom.cpp
-  src/display/display.cpp)
+  ${DISPLAY_SRC})
 
-target_link_libraries(boyc_exec SDL2::SDL2)
+target_link_libraries(boyc_exec ${DISPLAY_LIBS})
 
 # Download and add GoogleTest
 include(FetchContent)
@@ -50,12 +59,12 @@ add_executable(tests
   src/cpu/cpu.cpp
   src/mem/mem.cpp
   src/rom/rom.cpp
-  src/display/display.cpp)
+  ${DISPLAY_SRC})
 target_include_directories(tests PRIVATE
   tests/helper)
 
   
-target_link_libraries(tests gtest_main SDL2::SDL2)
+target_link_libraries(tests gtest_main ${DISPLAY_LIBS})
   
 # Register the tests
 include(GoogleTest)
