@@ -3,7 +3,7 @@
     "configurations": [
         {
             "name": "Run boyc_exec",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/build/boyc_exec",
             "args": [],
@@ -16,7 +16,7 @@
         },
         {
             "name": "Run unit tests",
-            "type": "cppdbg",
+            "type": "lldb",
             "request": "launch",
             "program": "${workspaceFolder}/build/tests",
             "args": [],
