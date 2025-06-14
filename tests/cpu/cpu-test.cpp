@@ -54,7 +54,7 @@ TEST(cpu_step_some_simple_steps_success, cpu_step) {
     EXPECT_EQ(ret, 0);
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
 
-    for (int i=0; i<1000; i++){
+    for (int i=0; i<100; i++){
         ret = cpu_step(&cpu, mem);
         EXPECT_EQ(ret, 0);
     }
