@@ -234,3 +234,55 @@ TEST(cpu_step_hl_memory_ops, cpu_step)
     EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD A, (HL)
     EXPECT_EQ(cpu.r.a, 0x10);
 }
+
+TEST(cpu_step_arithmetic_ops, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    rom_image[cpu.pc] = 0x06; // LD B, d8
+    rom_image[cpu.pc + 1] = 0x01;
+    rom_image[cpu.pc + 2] = 0x80; // ADD A, B
+    rom_image[cpu.pc + 3] = 0xC6; // ADD A, d8
+    rom_image[cpu.pc + 4] = 0x01;
+    rom_image[cpu.pc + 5] = 0x90; // SUB B
+    rom_image[cpu.pc + 6] = 0xD6; // SUB d8
+    rom_image[cpu.pc + 7] = 0x01;
+    rom_image[cpu.pc + 8] = 0xA0; // AND B
+    rom_image[cpu.pc + 9] = 0xE6; // AND d8
+    rom_image[cpu.pc + 10] = 0x0F;
+    rom_image[cpu.pc + 11] = 0xB0; // OR B
+    rom_image[cpu.pc + 12] = 0xF6; // OR d8
+    rom_image[cpu.pc + 13] = 0x02;
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD B, d8
+    EXPECT_EQ(cpu.r.b, 0x01);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // ADD A, B
+    EXPECT_EQ(cpu.r.a, 0x01);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // ADD A, d8
+    EXPECT_EQ(cpu.r.a, 0x02);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // SUB B
+    EXPECT_EQ(cpu.r.a, 0x01);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // SUB d8
+    EXPECT_EQ(cpu.r.a, 0x00);
+    EXPECT_TRUE(cpu_get_flag(&cpu.r, F_Z));
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // AND B
+    EXPECT_EQ(cpu.r.a, 0x00);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // AND d8
+    EXPECT_EQ(cpu.r.a, 0x00);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // OR B
+    EXPECT_EQ(cpu.r.a, 0x01);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // OR d8
+    EXPECT_EQ(cpu.r.a, 0x03);
+}
