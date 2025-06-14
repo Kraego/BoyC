@@ -131,6 +131,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x21:
             cycles = op_ld_hl_d16(cpu, m);
             break;
+        case 0x22:
+            cycles = op_ld_hl_inc_a(cpu, m);
+            break;
         case 0x24:
             cycles = op_inc_h(cpu);
             break;
@@ -143,6 +146,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x28:
             cycles = op_jr_z_s8(cpu, m);
             break;
+        case 0x2A:
+            cycles = op_ld_a_hl_inc(cpu, m);
+            break;
         case 0x2E:
             cycles = op_ld_l_d8(cpu, m);
             break;
@@ -151,6 +157,15 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             break;
         case 0x2D:
             cycles = op_dec_l(cpu);
+            break;
+        case 0x31:
+            cycles = op_ld_sp_d16(cpu, m);
+            break;
+        case 0x32:
+            cycles = op_ld_hl_dec_a(cpu, m);
+            break;
+        case 0x3A:
+            cycles = op_ld_a_hl_dec(cpu, m);
             break;
         case 0x40:
             cycles = op_ld_b_b(cpu, m);

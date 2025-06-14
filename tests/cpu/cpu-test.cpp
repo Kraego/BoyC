@@ -286,3 +286,47 @@ TEST(cpu_step_arithmetic_ops, cpu_step)
     EXPECT_EQ(cpu_step(&cpu, mem), 0); // OR d8
     EXPECT_EQ(cpu.r.a, 0x03);
 }
+
+TEST(cpu_step_sp_and_hl_inc_dec_ops, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    rom_image[cpu.pc] = 0x31; // LD SP, d16
+    rom_image[cpu.pc + 1] = 0x34;
+    rom_image[cpu.pc + 2] = 0x12; // SP = 0x1234
+    rom_image[cpu.pc + 3] = 0x21; // LD HL, d16
+    rom_image[cpu.pc + 4] = 0x00;
+    rom_image[cpu.pc + 5] = 0xC0; // HL = 0xC000
+    rom_image[cpu.pc + 6] = 0x22; // LD (HL+), A
+    rom_image[cpu.pc + 7] = 0x2A; // LD A, (HL+)
+    rom_image[cpu.pc + 8] = 0x32; // LD (HL-), A
+    rom_image[cpu.pc + 9] = 0x3A; // LD A, (HL-)
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    cpu.r.a = 0x55;
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD SP, d16
+    EXPECT_EQ(cpu.sp, 0x1234);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD HL, d16
+    EXPECT_EQ(cpu.r.hl, 0xC000);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD (HL+), A
+    EXPECT_EQ(mem_read_byte(mem, 0xC000), 0x55);
+    EXPECT_EQ(cpu.r.hl, 0xC001);
+
+    mem_write_byte(mem, 0xC001, 0x66);
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD A, (HL+)
+    EXPECT_EQ(cpu.r.a, 0x66);
+    EXPECT_EQ(cpu.r.hl, 0xC002);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD (HL-), A
+    EXPECT_EQ(mem_read_byte(mem, 0xC002), 0x66);
+    EXPECT_EQ(cpu.r.hl, 0xC001);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD A, (HL-)
+    EXPECT_EQ(cpu.r.a, 0x66);
+    EXPECT_EQ(cpu.r.hl, 0xC000);
+}
