@@ -1,10 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <SDL.h>
 #include "cpu.h"
 #include "mem.h"
 #include "rom.h"
-#include <stdlib.h>
 #include "display.h"
-#include <SDL.h>
 
 int quit = 0;
 
@@ -41,6 +41,10 @@ int main(int argc, char const *argv[])
 
     while (!quit) {
         SDL_Event e;
+
+        display_draw_circle(32, 32, 10, 0xFFFFFFFF);
+
+
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 quit = 1;

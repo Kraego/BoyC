@@ -32,7 +32,7 @@ TEST(cpu_step_one_simple_step_success, cpu_step) {
     int ret = 0;
     
     cpu_reset(&cpu);
-    snprintf(rom_path, sizeof(rom_path), "%s/cpu_bus_1.gb", TEST_ROM_DIR);
+    snprintf(rom_path, sizeof(rom_path), "%s/gbmicrotest/cpu_bus_1.gb", TEST_ROM_DIR);
     ret = load_rom(rom_path, rom_image, ROM_SIZE);
     EXPECT_EQ(ret, 0);
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
@@ -48,7 +48,7 @@ TEST(cpu_step_some_simple_steps_success, cpu_step) {
     int ret = 0;
     
     cpu_reset(&cpu);
-    snprintf(rom_path, sizeof(rom_path), "%s/blargg/cpu_instrs/cpu_instrs.gb", TEST_ROM_DIR);
+    snprintf(rom_path, sizeof(rom_path), "%s/gbmicrotest/cpu_bus_1.gb", TEST_ROM_DIR);
     ret = load_rom(rom_path, rom_image, ROM_SIZE);
     EXPECT_EQ(ret, 0);
     mem_t *mem = mem_create(rom_image, ROM_SIZE);
