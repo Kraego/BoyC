@@ -23,9 +23,18 @@ Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
    cd build && ctest --output-on-failure
    ```
 
-Using `ctest -T test` requires `DartConfiguration.tcl`, which is generated when
-`include(CTest)` is present in the `CMakeLists.txt`. Running `ctest` as shown
-above is sufficient for local testing.
+   The unit tests rely on ROM images provided via a git submodule. If you have
+   just cloned the repository, fetch these files first:
+
+   ```bash
+   git submodule update --init --recursive
+   ```
+3. Run it:
+   ```bash
+   ./boyc_exec "gb_test_roms/src/gb_test_roms/blargg/cpu_instrs/cpu_instrs.gb"
+   ```
+
+
 
 ## Todos
 
@@ -40,3 +49,4 @@ above is sufficient for local testing.
 
 * [Gameboy Development Wiki](https://gbdev.gg8.se/wiki/articles/Main_Page)
 * CPU: https://www.chciken.com/tlmboy/2021/10/01/gameboy-cpu.html
+   * opcodes site: https://meganesu.github.io/generate-gb-opcodes/
