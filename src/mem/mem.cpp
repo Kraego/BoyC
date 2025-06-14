@@ -125,7 +125,10 @@ void mem_write_word(mem_t *m, uint16_t adr, uint16_t value)
    plus call-outs for DMA, joypad latches, timer increments, etc.        */
 
 mem_t *mem_create(const uint8_t *rom_image, size_t rom_size){
-    mem_t *memory = (mem_t *) malloc(sizeof(mem_t));
+    mem_t *memory = (mem_t *) calloc(1, sizeof(mem_t));
+    if (!memory) {
+        return nullptr;
+    }
     memory->rom = rom_image;
     memory->rom_size = rom_size;
 
