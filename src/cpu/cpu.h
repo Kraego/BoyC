@@ -29,10 +29,10 @@ typedef union {
 #pragma pack(pop)
 
 /* Flag masks in F (bit positions are identical to real hardware) */
-#define F_Z (1u << 7)
-#define F_N (1u << 6)
-#define F_H (1u << 5)
-#define F_C (1u << 4)
+#define F_Z (1u << 7) // Z (Zero): Set if result is zero.
+#define F_N (1u << 6) // N (Subtract): Reset.
+#define F_H (1u << 5) // H (Half carry): Set.
+#define F_C (1u << 4) // C (Carry): Reset.
 
 static inline void cpu_set_flag(cpu_regs_t *r, uint8_t mask, int on)
 {

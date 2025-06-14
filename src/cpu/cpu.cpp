@@ -44,11 +44,32 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x01:
             cycles = op_ld_bc_d16(cpu, m);
             break;
+        case 0x03:
+            cycles = op_inc_bc(cpu);
+            break;
+        case 0x07:
+            cycles = op_rlca(cpu);
+            break;
         case 0x18:
             cycles = op_jr_s8(cpu, m);
             break;
+        case 0x20:
+            cycles = op_jr_nz_s8(cpu, m);
+            break;
         case 0x21:
             cycles = op_ld_hl_d16(cpu, m);
+            break;
+        case 0x28:
+            cycles = op_jp_z_s8(cpu, m);
+            break;
+        case 0x2E:
+            cycles = op_ld_l_d8(cpu, m);
+            break;
+        case 0x40:
+            cycles = op_ld_b_b(cpu, m);
+            break;
+        case 0x41:
+            cycles = op_ld_b_c(cpu, m);
             break;
         case 0x3E:
             cycles = op_ld_a_d8(cpu, m);
@@ -56,8 +77,31 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x77:
             cycles = op_ld_hl_a(cpu, m);
             break;
+        case 0x78:
+            cycles = op_ld_a_b(cpu);
+            break;
+        case 0xC2:
+            cycles = op_jp_z_a16(cpu, m);
+            break;
         case 0xC3: 
             cycles = op_jp_a16(cpu, m);
+            break;
+        case 0xF0:
+            cycles = op_ld_a_a8(cpu, m);
+            break;
+        case 0xF8:
+            cycles = op_ld_hl_sp_r8(cpu, m);
+            break;
+        case 0xFA:
+            cycles = op_ld_a_a16(cpu, m);
+            break;
+        case 0xFE:
+            cycles = op_cp_d8(cpu, m);
+            break;
+        case 0xE6:
+            cycles = op_and_d8(cpu, m);
+        case 0xEA:
+            cycles = op_ld_a16_a(cpu, m);
             break;
         default:   
             fprintf(stderr,"Unknown opcode %x\n", opcode); 
