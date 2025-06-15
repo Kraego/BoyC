@@ -17,7 +17,18 @@ Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
    cmake --build build
    ```
 
-2. Execute the test suite from the build directory:
+2. Install sdl (for graphics output / on arch)
+
+   ```bash
+   sudo pacman -Syu
+   sudo pacman -S sdl2 sdl2_image sdl2_ttf libgl libglvnd mesa mesa-utils
+   ```
+   test it with: 
+   ```bash
+   glxinfo | grep OpenGL
+   ```
+
+3. Execute the test suite from the build directory:
 
    ```bash
    cd build && ctest --output-on-failure
