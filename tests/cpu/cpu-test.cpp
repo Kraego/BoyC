@@ -376,3 +376,38 @@ TEST(cpu_step_xor_cp_ops, cpu_step)
     EXPECT_EQ(cpu_step(&cpu, mem), 0); // CP A
     EXPECT_TRUE(cpu_get_flag(&cpu.r, F_Z));
 }
+
+TEST(cpu_step_adc_sbc_ops, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    cpu.r.a = 0x01;
+    cpu.r.b = 0x01;
+    cpu_set_flag(&cpu.r, F_C, 1);
+
+    rom_image[cpu.pc] = 0x88; // ADC A, B
+    rom_image[cpu.pc + 1] = 0xCE; // ADC A, d8
+    rom_image[cpu.pc + 2] = 0x01;
+    rom_image[cpu.pc + 3] = 0x98; // SBC A, B
+    rom_image[cpu.pc + 4] = 0xDE; // SBC A, d8
+    rom_image[cpu.pc + 5] = 0x01;
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // ADC A, B
+    EXPECT_EQ(cpu.r.a, 0x03);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // ADC A, d8
+    EXPECT_EQ(cpu.r.a, 0x04);
+
+    cpu_set_flag(&cpu.r, F_C, 1);
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // SBC A, B
+    EXPECT_EQ(cpu.r.a, 0x02);
+
+    cpu_set_flag(&cpu.r, F_C, 1);
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // SBC A, d8
+    EXPECT_EQ(cpu.r.a, 0x00);
+    EXPECT_TRUE(cpu_get_flag(&cpu.r, F_Z));
+}
