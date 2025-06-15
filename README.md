@@ -23,13 +23,9 @@ Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
    cd build && ctest --output-on-failure
    ```
 
-   The unit tests rely on ROM images provided via a git submodule. If you have
-   just cloned the repository, fetch these files first:
+   The unit tests rely on ROM images provided via cmake target: `GB_DOWNLOAD_TEST_ROMS`.
 
-   ```bash
-   git submodule update --init --recursive
-   ```
-3. Run it:
+4. Run it:
    ```bash
    ./boyc_exec "gb_test_roms/src/gb_test_roms/blargg/cpu_instrs/cpu_instrs.gb"
    ```
