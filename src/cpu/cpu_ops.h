@@ -12,6 +12,24 @@ extern "C" {
 
 #define OPS_COUNT   (256)
 
+/* Stack helpers */
+static inline void push_word(cpu_t *cpu, mem_t *m, uint16_t value)
+{
+    cpu->sp--;
+    mem_write_byte(m, cpu->sp, value >> 8);
+    cpu->sp--;
+    mem_write_byte(m, cpu->sp, value & 0xFF);
+}
+
+static inline uint16_t pop_word(cpu_t *cpu, mem_t *m)
+{
+    uint8_t low = mem_read_byte(m, cpu->sp);
+    cpu->sp++;
+    uint8_t high = mem_read_byte(m, cpu->sp);
+    cpu->sp++;
+    return (high << 8) | low;
+}
+
 
 // Functions behind opcodes
 
@@ -1679,6 +1697,322 @@ static inline uint8_t op_ccf(cpu_t *cpu) {
     cpu_set_flag(&cpu->r, F_C, !cpu_get_flag(&cpu->r, F_C));
     cpu_set_flag(&cpu->r, F_N, 0);
     cpu_set_flag(&cpu->r, F_H, 0);
+    cpu->pc++;
+    return 1;
+}
+
+/* STOP (opcode 0x10) */
+static inline uint8_t op_stop(cpu_t *cpu) {
+    cpu->pc += 2; /* skip stop and following byte */
+    return 1;
+}
+
+/* HALT (opcode 0x76) */
+static inline uint8_t op_halt(cpu_t *cpu) {
+    cpu->pc++; /* simplified, ignore halt state */
+    return 1;
+}
+
+/* RLA (opcode 0x17) */
+static inline uint8_t op_rla(cpu_t *cpu) {
+    uint8_t carry = cpu_get_flag(&cpu->r, F_C);
+    uint8_t new_carry = (cpu->r.a >> 7) & 1;
+    cpu->r.a = (cpu->r.a << 1) | carry;
+    cpu_set_flag(&cpu->r, F_C, new_carry);
+    cpu_set_flag(&cpu->r, F_Z, 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, 0);
+    cpu->pc++;
+    return 1;
+}
+
+/* RRA (opcode 0x1F) */
+static inline uint8_t op_rra(cpu_t *cpu) {
+    uint8_t carry = cpu_get_flag(&cpu->r, F_C);
+    uint8_t new_carry = cpu->r.a & 1;
+    cpu->r.a = (cpu->r.a >> 1) | (carry << 7);
+    cpu_set_flag(&cpu->r, F_C, new_carry);
+    cpu_set_flag(&cpu->r, F_Z, 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, 0);
+    cpu->pc++;
+    return 1;
+}
+
+/* DAA (opcode 0x27) */
+static inline uint8_t op_daa(cpu_t *cpu) {
+    uint8_t a = cpu->r.a;
+    uint8_t adjust = 0;
+    uint8_t carry = cpu_get_flag(&cpu->r, F_C);
+    if (!cpu_get_flag(&cpu->r, F_N)) {
+        if (cpu_get_flag(&cpu->r, F_H) || (a & 0x0F) > 0x09)
+            adjust |= 0x06;
+        if (carry || a > 0x99) {
+            adjust |= 0x60;
+            carry = 1;
+        }
+        a += adjust;
+    } else {
+        if (cpu_get_flag(&cpu->r, F_H)) adjust |= 0x06;
+        if (carry) adjust |= 0x60;
+        a -= adjust;
+    }
+    cpu->r.a = a;
+    cpu_set_flag(&cpu->r, F_Z, cpu->r.a == 0);
+    cpu_set_flag(&cpu->r, F_H, 0);
+    cpu_set_flag(&cpu->r, F_C, carry);
+    cpu->pc++;
+    return 1;
+}
+
+/* CPL (opcode 0x2F) */
+static inline uint8_t op_cpl(cpu_t *cpu) {
+    cpu->r.a ^= 0xFF;
+    cpu_set_flag(&cpu->r, F_N, 1);
+    cpu_set_flag(&cpu->r, F_H, 1);
+    cpu->pc++;
+    return 1;
+}
+
+/* JP Z, a16 (opcode 0xCA) */
+static inline uint8_t op_jp_z_a16(cpu_t *cpu, mem_t *m) {
+    if (cpu_get_flag(&cpu->r, F_Z)) {
+        uint16_t a16 = mem_read_word(m, cpu->pc + 1);
+        cpu->pc = a16;
+        return 4;
+    }
+    cpu->pc += 3;
+    return 3;
+}
+
+/* JP NC, a16 (opcode 0xD2) */
+static inline uint8_t op_jp_nc_a16(cpu_t *cpu, mem_t *m) {
+    if (!cpu_get_flag(&cpu->r, F_C)) {
+        uint16_t a16 = mem_read_word(m, cpu->pc + 1);
+        cpu->pc = a16;
+        return 4;
+    }
+    cpu->pc += 3;
+    return 3;
+}
+
+/* JP C, a16 (opcode 0xDA) */
+static inline uint8_t op_jp_c_a16(cpu_t *cpu, mem_t *m) {
+    if (cpu_get_flag(&cpu->r, F_C)) {
+        uint16_t a16 = mem_read_word(m, cpu->pc + 1);
+        cpu->pc = a16;
+        return 4;
+    }
+    cpu->pc += 3;
+    return 3;
+}
+
+/* JP (HL) (opcode 0xE9) */
+static inline uint8_t op_jp_hl(cpu_t *cpu) {
+    cpu->pc = cpu->r.hl;
+    return 1;
+}
+
+/* CALL a16 (opcode 0xCD) */
+static inline uint8_t op_call_a16(cpu_t *cpu, mem_t *m) {
+    uint16_t a16 = mem_read_word(m, cpu->pc + 1);
+    push_word(cpu, m, cpu->pc + 3);
+    cpu->pc = a16;
+    return 6;
+}
+
+static inline uint8_t op_call_cond_a16(cpu_t *cpu, mem_t *m, int cond) {
+    if (cond) {
+        uint16_t a16 = mem_read_word(m, cpu->pc + 1);
+        push_word(cpu, m, cpu->pc + 3);
+        cpu->pc = a16;
+        return 6;
+    }
+    cpu->pc += 3;
+    return 3;
+}
+
+/* CALL NZ, a16 (opcode 0xC4) */
+static inline uint8_t op_call_nz_a16(cpu_t *cpu, mem_t *m) {
+    return op_call_cond_a16(cpu, m, cpu_get_flag(&cpu->r, F_Z) == 0);
+}
+
+/* CALL Z, a16 (opcode 0xCC) */
+static inline uint8_t op_call_z_a16(cpu_t *cpu, mem_t *m) {
+    return op_call_cond_a16(cpu, m, cpu_get_flag(&cpu->r, F_Z) != 0);
+}
+
+/* CALL NC, a16 (opcode 0xD4) */
+static inline uint8_t op_call_nc_a16(cpu_t *cpu, mem_t *m) {
+    return op_call_cond_a16(cpu, m, cpu_get_flag(&cpu->r, F_C) == 0);
+}
+
+/* CALL C, a16 (opcode 0xDC) */
+static inline uint8_t op_call_c_a16(cpu_t *cpu, mem_t *m) {
+    return op_call_cond_a16(cpu, m, cpu_get_flag(&cpu->r, F_C) != 0);
+}
+
+/* RET (opcode 0xC9) */
+static inline uint8_t op_ret(cpu_t *cpu, mem_t *m) {
+    cpu->pc = pop_word(cpu, m);
+    return 4;
+}
+
+static inline uint8_t op_ret_cond(cpu_t *cpu, mem_t *m, int cond) {
+    if (cond) {
+        cpu->pc = pop_word(cpu, m);
+        return 5;
+    }
+    cpu->pc++;
+    return 2;
+}
+
+/* RET NZ (opcode 0xC0) */
+static inline uint8_t op_ret_nz(cpu_t *cpu, mem_t *m) {
+    return op_ret_cond(cpu, m, cpu_get_flag(&cpu->r, F_Z) == 0);
+}
+
+/* RET Z (opcode 0xC8) */
+static inline uint8_t op_ret_z(cpu_t *cpu, mem_t *m) {
+    return op_ret_cond(cpu, m, cpu_get_flag(&cpu->r, F_Z) != 0);
+}
+
+/* RET NC (opcode 0xD0) */
+static inline uint8_t op_ret_nc(cpu_t *cpu, mem_t *m) {
+    return op_ret_cond(cpu, m, cpu_get_flag(&cpu->r, F_C) == 0);
+}
+
+/* RET C (opcode 0xD8) */
+static inline uint8_t op_ret_c(cpu_t *cpu, mem_t *m) {
+    return op_ret_cond(cpu, m, cpu_get_flag(&cpu->r, F_C) != 0);
+}
+
+/* RETI (opcode 0xD9) */
+static inline uint8_t op_reti(cpu_t *cpu, mem_t *m) {
+    cpu->pc = pop_word(cpu, m);
+    cpu->ime = 1;
+    return 4;
+}
+
+/* PUSH BC (opcode 0xC5) */
+static inline uint8_t op_push_bc(cpu_t *cpu, mem_t *m) {
+    push_word(cpu, m, cpu->r.bc);
+    cpu->pc++;
+    return 4;
+}
+
+/* PUSH DE (opcode 0xD5) */
+static inline uint8_t op_push_de(cpu_t *cpu, mem_t *m) {
+    push_word(cpu, m, cpu->r.de);
+    cpu->pc++;
+    return 4;
+}
+
+/* PUSH HL (opcode 0xE5) */
+static inline uint8_t op_push_hl(cpu_t *cpu, mem_t *m) {
+    push_word(cpu, m, cpu->r.hl);
+    cpu->pc++;
+    return 4;
+}
+
+/* PUSH AF (opcode 0xF5) */
+static inline uint8_t op_push_af(cpu_t *cpu, mem_t *m) {
+    push_word(cpu, m, cpu->r.af);
+    cpu->pc++;
+    return 4;
+}
+
+/* POP BC (opcode 0xC1) */
+static inline uint8_t op_pop_bc(cpu_t *cpu, mem_t *m) {
+    cpu->r.bc = pop_word(cpu, m);
+    cpu->pc++;
+    return 3;
+}
+
+/* POP DE (opcode 0xD1) */
+static inline uint8_t op_pop_de(cpu_t *cpu, mem_t *m) {
+    cpu->r.de = pop_word(cpu, m);
+    cpu->pc++;
+    return 3;
+}
+
+/* POP HL (opcode 0xE1) */
+static inline uint8_t op_pop_hl(cpu_t *cpu, mem_t *m) {
+    cpu->r.hl = pop_word(cpu, m);
+    cpu->pc++;
+    return 3;
+}
+
+/* POP AF (opcode 0xF1) */
+static inline uint8_t op_pop_af(cpu_t *cpu, mem_t *m) {
+    cpu->r.af = pop_word(cpu, m) & 0xFFF0;
+    cpu->pc++;
+    return 3;
+}
+
+/* RST helpers */
+static inline uint8_t op_rst(cpu_t *cpu, mem_t *m, uint16_t addr) {
+    push_word(cpu, m, cpu->pc);
+    cpu->pc = addr;
+    return 4;
+}
+
+/* RST 00 (opcode 0xC7) */
+static inline uint8_t op_rst_00(cpu_t *cpu, mem_t *m) { return op_rst(cpu,m,0x00); }
+/* RST 08 (opcode 0xCF) */
+static inline uint8_t op_rst_08(cpu_t *cpu, mem_t *m) { return op_rst(cpu,m,0x08); }
+/* RST 10 (opcode 0xD7) */
+static inline uint8_t op_rst_10(cpu_t *cpu, mem_t *m) { return op_rst(cpu,m,0x10); }
+/* RST 18 (opcode 0xDF) */
+static inline uint8_t op_rst_18(cpu_t *cpu, mem_t *m) { return op_rst(cpu,m,0x18); }
+/* RST 20 (opcode 0xE7) */
+static inline uint8_t op_rst_20(cpu_t *cpu, mem_t *m) { return op_rst(cpu,m,0x20); }
+/* RST 28 (opcode 0xEF) */
+static inline uint8_t op_rst_28(cpu_t *cpu, mem_t *m) { return op_rst(cpu,m,0x28); }
+/* RST 30 (opcode 0xF7) */
+static inline uint8_t op_rst_30(cpu_t *cpu, mem_t *m) { return op_rst(cpu,m,0x30); }
+/* RST 38 (opcode 0xFF) */
+static inline uint8_t op_rst_38(cpu_t *cpu, mem_t *m) { return op_rst(cpu,m,0x38); }
+
+/* LDH (a8), A (opcode 0xE0) */
+static inline uint8_t op_ldh_a8_a(cpu_t *cpu, mem_t *m) {
+    uint8_t offset = mem_read_byte(m, cpu->pc + 1);
+    mem_write_byte(m, 0xFF00 | offset, cpu->r.a);
+    cpu->pc += 2;
+    return 3;
+}
+
+/* LD (C), A (opcode 0xE2) */
+static inline uint8_t op_ld_c_a_ind(cpu_t *cpu, mem_t *m) {
+    mem_write_byte(m, 0xFF00 | cpu->r.c, cpu->r.a);
+    cpu->pc++;
+    return 2;
+}
+
+/* LD A, (C) (opcode 0xF2) */
+static inline uint8_t op_ld_a_c_ind(cpu_t *cpu, mem_t *m) {
+    cpu->r.a = mem_read_byte(m, 0xFF00 | cpu->r.c);
+    cpu->pc++;
+    return 2;
+}
+
+/* ADD SP, r8 (opcode 0xE8) */
+static inline uint8_t op_add_sp_r8(cpu_t *cpu, mem_t *m) {
+    int8_t r8 = (int8_t)mem_read_byte(m, cpu->pc + 1);
+    uint16_t sp = cpu->sp;
+    uint16_t res = (uint16_t)((int32_t)sp + r8);
+    cpu_set_flag(&cpu->r, F_Z, 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, ((sp & 0x0F) + (r8 & 0x0F)) > 0x0F);
+    cpu_set_flag(&cpu->r, F_C, ((sp & 0xFF) + (r8 & 0xFF)) > 0xFF);
+    cpu->sp = res;
+    cpu->pc += 2;
+    return 4;
+}
+
+/* EI (opcode 0xFB) */
+static inline uint8_t op_ei(cpu_t *cpu) {
+    cpu->ime = 1;
     cpu->pc++;
     return 1;
 }

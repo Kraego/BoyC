@@ -411,3 +411,41 @@ TEST(cpu_step_adc_sbc_ops, cpu_step)
     EXPECT_EQ(cpu.r.a, 0x00);
     EXPECT_TRUE(cpu_get_flag(&cpu.r, F_Z));
 }
+
+TEST(cpu_step_stack_ops, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    cpu.r.bc = 0x1234;
+    rom_image[cpu.pc] = 0x31; // LD SP, d16
+    rom_image[cpu.pc + 1] = 0x00;
+    rom_image[cpu.pc + 2] = 0xC0; // SP = 0xC000
+    rom_image[cpu.pc + 3] = 0xC5; // PUSH BC
+    rom_image[cpu.pc + 4] = 0xC1; // POP BC
+    rom_image[cpu.pc + 5] = 0xCD; // CALL a16
+    rom_image[cpu.pc + 6] = 0x10;
+    rom_image[cpu.pc + 7] = 0x01; // call to 0x0110
+    rom_image[0x0110] = 0xC9;     // RET
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // LD SP, d16
+    EXPECT_EQ(cpu.sp, 0xC000);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // PUSH BC
+    EXPECT_EQ(cpu.sp, 0xBFFE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // POP BC
+    EXPECT_EQ(cpu.sp, 0xC000);
+    EXPECT_EQ(cpu.r.bc, 0x1234);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // CALL a16
+    EXPECT_EQ(cpu.pc, 0x0110);
+    EXPECT_EQ(cpu.sp, 0xBFFE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // RET
+    EXPECT_EQ(cpu.pc, 0x0108);
+    EXPECT_EQ(cpu.sp, 0xC000);
+}

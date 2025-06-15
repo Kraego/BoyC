@@ -80,6 +80,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x0E:
             cycles = op_ld_c_d8(cpu, m);
             break;
+        case 0x10:
+            cycles = op_stop(cpu);
+            break;
         case 0x14:
             cycles = op_inc_d(cpu);
             break;
@@ -88,6 +91,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             break;
         case 0x16:
             cycles = op_ld_d_d8(cpu, m);
+            break;
+        case 0x17:
+            cycles = op_rla(cpu);
             break;
         case 0x0F:
             cycles = op_rrca(cpu);
@@ -128,6 +134,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x1E:
             cycles = op_ld_e_d8(cpu, m);
             break;
+        case 0x1F:
+            cycles = op_rra(cpu);
+            break;
         case 0x18:
             cycles = op_jr_s8(cpu, m);
             break;
@@ -152,6 +161,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x26:
             cycles = op_ld_h_d8(cpu, m);
             break;
+        case 0x27:
+            cycles = op_daa(cpu);
+            break;
         case 0x28:
             cycles = op_jr_z_s8(cpu, m);
             break;
@@ -166,6 +178,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             break;
         case 0x2E:
             cycles = op_ld_l_d8(cpu, m);
+            break;
+        case 0x2F:
+            cycles = op_cpl(cpu);
             break;
         case 0x2C:
             cycles = op_inc_l(cpu);
@@ -364,6 +379,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             break;
         case 0x75:
             cycles = op_ld_hl_l(cpu, m);
+            break;
+        case 0x76:
+            cycles = op_halt(cpu);
             break;
         case 0x34:
             cycles = op_inc_mem_hl(cpu, m);
@@ -614,10 +632,115 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0xF3:
             cycles = op_di(cpu);
             break;
+        case 0xFB:
+            cycles = op_ei(cpu);
+            break;
+        case 0xC0:
+            cycles = op_ret_nz(cpu, m);
+            break;
+        case 0xC1:
+            cycles = op_pop_bc(cpu, m);
+            break;
+        case 0xC4:
+            cycles = op_call_nz_a16(cpu, m);
+            break;
+        case 0xC5:
+            cycles = op_push_bc(cpu, m);
+            break;
+        case 0xC7:
+            cycles = op_rst_00(cpu, m);
+            break;
+        case 0xC8:
+            cycles = op_ret_z(cpu, m);
+            break;
+        case 0xC9:
+            cycles = op_ret(cpu, m);
+            break;
+        case 0xCA:
+            cycles = op_jp_z_a16(cpu, m);
+            break;
+        case 0xCC:
+            cycles = op_call_z_a16(cpu, m);
+            break;
+        case 0xCD:
+            cycles = op_call_a16(cpu, m);
+            break;
+        case 0xCF:
+            cycles = op_rst_08(cpu, m);
+            break;
+        case 0xD0:
+            cycles = op_ret_nc(cpu, m);
+            break;
+        case 0xD1:
+            cycles = op_pop_de(cpu, m);
+            break;
+        case 0xD2:
+            cycles = op_jp_nc_a16(cpu, m);
+            break;
+        case 0xD4:
+            cycles = op_call_nc_a16(cpu, m);
+            break;
+        case 0xD5:
+            cycles = op_push_de(cpu, m);
+            break;
+        case 0xD7:
+            cycles = op_rst_10(cpu, m);
+            break;
+        case 0xD8:
+            cycles = op_ret_c(cpu, m);
+            break;
+        case 0xD9:
+            cycles = op_reti(cpu, m);
+            break;
+        case 0xDA:
+            cycles = op_jp_c_a16(cpu, m);
+            break;
+        case 0xDC:
+            cycles = op_call_c_a16(cpu, m);
+            break;
+        case 0xDF:
+            cycles = op_rst_18(cpu, m);
+            break;
+        case 0xE0:
+            cycles = op_ldh_a8_a(cpu, m);
+            break;
+        case 0xE1:
+            cycles = op_pop_hl(cpu, m);
+            break;
+        case 0xE2:
+            cycles = op_ld_c_a_ind(cpu, m);
+            break;
+        case 0xE5:
+            cycles = op_push_hl(cpu, m);
+            break;
+        case 0xE7:
+            cycles = op_rst_20(cpu, m);
+            break;
+        case 0xE8:
+            cycles = op_add_sp_r8(cpu, m);
+            break;
+        case 0xE9:
+            cycles = op_jp_hl(cpu);
+            break;
+        case 0xEF:
+            cycles = op_rst_28(cpu, m);
+            break;
+        case 0xF1:
+            cycles = op_pop_af(cpu, m);
+            break;
+        case 0xF2:
+            cycles = op_ld_a_c_ind(cpu, m);
+            break;
+        case 0xF5:
+            cycles = op_push_af(cpu, m);
+            break;
+        case 0xF7:
+            cycles = op_rst_30(cpu, m);
+            break;
         case 0xC2:
             cycles = op_jp_nz_a16(cpu, m);
             break;
-        case 0xC3: 
+        case 0xC3:
             cycles = op_jp_a16(cpu, m);
             break;
         case 0xF0:
@@ -634,6 +757,9 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
             break;
         case 0xEE:
             cycles = op_xor_d8(cpu, m);
+            break;
+        case 0xFF:
+            cycles = op_rst_38(cpu, m);
             break;
         case 0xFE:
             cycles = op_cp_d8(cpu, m);
