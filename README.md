@@ -41,13 +41,12 @@ Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
    ./boyc_exec "gb_test_roms/src/gb_test_roms/blargg/cpu_instrs/cpu_instrs.gb"
    ```
 
-
-
 ## Todos
 
 * [x] Check overview of GB
-* [ ] Implement CPU emulation
-* [ ] Emulate Memory and I/O
+* [x] Implement CPU emulation
+* [x] Emulate Memory
+* [ ] Emualate I/O
 * [ ] Graphics
 * [ ] Inputs
 * [ ] Sound
