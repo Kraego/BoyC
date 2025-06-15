@@ -338,3 +338,41 @@ TEST(cpu_step_disable_interrupts, cpu_step)
     EXPECT_EQ(cpu_step(&cpu, mem), 0);
     EXPECT_EQ(cpu.ime, 0);
 }
+
+TEST(cpu_step_xor_cp_ops, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    cpu.r.a = 0xFF;
+    cpu.r.b = 0x10;
+
+    rom_image[cpu.pc] = 0x3C; // INC A
+    rom_image[cpu.pc + 1] = 0x3D; // DEC A
+    rom_image[cpu.pc + 2] = 0xA8; // XOR B
+    rom_image[cpu.pc + 3] = 0xEE; // XOR d8
+    rom_image[cpu.pc + 4] = 0x0F;
+    rom_image[cpu.pc + 5] = 0xB8; // CP B
+    rom_image[cpu.pc + 6] = 0xBF; // CP A
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // INC A
+    EXPECT_EQ(cpu.r.a, 0x00);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // DEC A
+    EXPECT_EQ(cpu.r.a, 0xFF);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // XOR B
+    EXPECT_EQ(cpu.r.a, 0xEF);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // XOR d8
+    EXPECT_EQ(cpu.r.a, 0xE0);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // CP B
+    EXPECT_TRUE(!cpu_get_flag(&cpu.r, F_Z));
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0); // CP A
+    EXPECT_TRUE(cpu_get_flag(&cpu.r, F_Z));
+}
