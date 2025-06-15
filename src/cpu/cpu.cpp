@@ -767,11 +767,27 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0xE6:
             cycles = op_and_d8(cpu, m);
             break;
+        case 0xCB:
+            cycles = op_prefix_cb(cpu, m);
+            break;
+        case 0xD3:
+        case 0xDB:
+        case 0xDD:
+        case 0xE3:
+        case 0xE4:
+        case 0xEB:
+        case 0xEC:
+        case 0xED:
+        case 0xF4:
+        case 0xFC:
+        case 0xFD:
+            cycles = nop(cpu);
+            break;
         case 0xEA:
             cycles = op_ld_a16_a(cpu, m);
             break;
-        default:   
-            fprintf(stderr,"Unknown opcode %x\n", opcode); 
+        default:
+            fprintf(stderr,"Unknown opcode %x\n", opcode);
             return -1;
     }
 

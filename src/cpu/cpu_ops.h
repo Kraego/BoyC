@@ -30,6 +30,37 @@ static inline uint16_t pop_word(cpu_t *cpu, mem_t *m)
     return (high << 8) | low;
 }
 
+/* Generic 8-bit register helpers used by CB-prefixed opcodes */
+static inline uint8_t read_reg8(cpu_t *cpu, mem_t *m, uint8_t idx)
+{
+    switch (idx)
+    {
+        case 0: return cpu->r.b;
+        case 1: return cpu->r.c;
+        case 2: return cpu->r.d;
+        case 3: return cpu->r.e;
+        case 4: return cpu->r.h;
+        case 5: return cpu->r.l;
+        case 6: return mem_read_byte(m, cpu->r.hl);
+        default: return cpu->r.a;
+    }
+}
+
+static inline void write_reg8(cpu_t *cpu, mem_t *m, uint8_t idx, uint8_t val)
+{
+    switch (idx)
+    {
+        case 0: cpu->r.b = val; break;
+        case 1: cpu->r.c = val; break;
+        case 2: cpu->r.d = val; break;
+        case 3: cpu->r.e = val; break;
+        case 4: cpu->r.h = val; break;
+        case 5: cpu->r.l = val; break;
+        case 6: mem_write_byte(m, cpu->r.hl, val); break;
+        default: cpu->r.a = val; break;
+    }
+}
+
 
 // Functions behind opcodes
 
@@ -2015,6 +2046,110 @@ static inline uint8_t op_ei(cpu_t *cpu) {
     cpu->ime = 1;
     cpu->pc++;
     return 1;
+}
+
+/* Handle CB-prefixed opcodes */
+static inline uint8_t op_prefix_cb(cpu_t *cpu, mem_t *m)
+{
+    uint8_t opcode = mem_read_byte(m, cpu->pc + 1);
+    uint8_t x = opcode >> 6;
+    uint8_t y = (opcode >> 3) & 0x07;
+    uint8_t z = opcode & 0x07;
+
+    uint8_t value = read_reg8(cpu, m, z);
+    uint8_t result = value;
+    uint8_t cycles = (z == 6) ? 4 : 2;
+
+    switch (x)
+    {
+        case 0: /* rotate/shift */
+            switch (y)
+            {
+                case 0: /* RLC */
+                    result = (value << 1) | (value >> 7);
+                    cpu_set_flag(&cpu->r, F_C, (value >> 7) & 1);
+                    cpu_set_flag(&cpu->r, F_Z, result == 0);
+                    cpu_set_flag(&cpu->r, F_N, 0);
+                    cpu_set_flag(&cpu->r, F_H, 0);
+                    break;
+                case 1: /* RRC */
+                    result = (value >> 1) | (value << 7);
+                    cpu_set_flag(&cpu->r, F_C, value & 1);
+                    cpu_set_flag(&cpu->r, F_Z, result == 0);
+                    cpu_set_flag(&cpu->r, F_N, 0);
+                    cpu_set_flag(&cpu->r, F_H, 0);
+                    break;
+                case 2: /* RL */
+                {
+                    uint8_t carry = cpu_get_flag(&cpu->r, F_C);
+                    cpu_set_flag(&cpu->r, F_C, (value >> 7) & 1);
+                    result = (value << 1) | carry;
+                    cpu_set_flag(&cpu->r, F_Z, result == 0);
+                    cpu_set_flag(&cpu->r, F_N, 0);
+                    cpu_set_flag(&cpu->r, F_H, 0);
+                    break;
+                }
+                case 3: /* RR */
+                {
+                    uint8_t carry = cpu_get_flag(&cpu->r, F_C);
+                    cpu_set_flag(&cpu->r, F_C, value & 1);
+                    result = (value >> 1) | (carry << 7);
+                    cpu_set_flag(&cpu->r, F_Z, result == 0);
+                    cpu_set_flag(&cpu->r, F_N, 0);
+                    cpu_set_flag(&cpu->r, F_H, 0);
+                    break;
+                }
+                case 4: /* SLA */
+                    cpu_set_flag(&cpu->r, F_C, (value >> 7) & 1);
+                    result = value << 1;
+                    cpu_set_flag(&cpu->r, F_Z, result == 0);
+                    cpu_set_flag(&cpu->r, F_N, 0);
+                    cpu_set_flag(&cpu->r, F_H, 0);
+                    break;
+                case 5: /* SRA */
+                    cpu_set_flag(&cpu->r, F_C, value & 1);
+                    result = (value >> 1) | (value & 0x80);
+                    cpu_set_flag(&cpu->r, F_Z, result == 0);
+                    cpu_set_flag(&cpu->r, F_N, 0);
+                    cpu_set_flag(&cpu->r, F_H, 0);
+                    break;
+                case 6: /* SWAP */
+                    result = (value << 4) | (value >> 4);
+                    cpu_set_flag(&cpu->r, F_Z, result == 0);
+                    cpu_set_flag(&cpu->r, F_N, 0);
+                    cpu_set_flag(&cpu->r, F_H, 0);
+                    cpu_set_flag(&cpu->r, F_C, 0);
+                    break;
+                case 7: /* SRL */
+                    cpu_set_flag(&cpu->r, F_C, value & 1);
+                    result = value >> 1;
+                    cpu_set_flag(&cpu->r, F_Z, result == 0);
+                    cpu_set_flag(&cpu->r, F_N, 0);
+                    cpu_set_flag(&cpu->r, F_H, 0);
+                    break;
+            }
+            write_reg8(cpu, m, z, result);
+            break;
+
+        case 1: /* BIT y, r */
+            cpu_set_flag(&cpu->r, F_Z, (value & (1 << y)) == 0);
+            cpu_set_flag(&cpu->r, F_N, 0);
+            cpu_set_flag(&cpu->r, F_H, 1);
+            break;
+
+        case 2: /* RES y, r */
+            result = value & ~(1 << y);
+            write_reg8(cpu, m, z, result);
+            break;
+
+        case 3: /* SET y, r */
+            result = value | (1 << y);
+            write_reg8(cpu, m, z, result);
+            break;
+    }
+
+    cpu->pc += 2;
+    return cycles;
 }
 
 
