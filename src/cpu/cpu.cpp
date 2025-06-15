@@ -428,8 +428,35 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x87:
             cycles = op_add_a_a(cpu);
             break;
+        case 0x88:
+            cycles = op_adc_a_b(cpu);
+            break;
+        case 0x89:
+            cycles = op_adc_a_c(cpu);
+            break;
+        case 0x8A:
+            cycles = op_adc_a_d(cpu);
+            break;
+        case 0x8B:
+            cycles = op_adc_a_e(cpu);
+            break;
+        case 0x8C:
+            cycles = op_adc_a_h(cpu);
+            break;
+        case 0x8D:
+            cycles = op_adc_a_l(cpu);
+            break;
+        case 0x8E:
+            cycles = op_adc_a_hl(cpu, m);
+            break;
+        case 0x8F:
+            cycles = op_adc_a_a(cpu);
+            break;
         case 0xC6:
             cycles = op_add_a_d8(cpu, m);
+            break;
+        case 0xCE:
+            cycles = op_adc_a_d8(cpu, m);
             break;
         case 0x90:
             cycles = op_sub_b(cpu);
@@ -455,8 +482,35 @@ int8_t cpu_step(cpu_t *cpu, mem_t *m)
         case 0x97:
             cycles = op_sub_a_a(cpu);
             break;
+        case 0x98:
+            cycles = op_sbc_a_b(cpu);
+            break;
+        case 0x99:
+            cycles = op_sbc_a_c(cpu);
+            break;
+        case 0x9A:
+            cycles = op_sbc_a_d(cpu);
+            break;
+        case 0x9B:
+            cycles = op_sbc_a_e(cpu);
+            break;
+        case 0x9C:
+            cycles = op_sbc_a_h(cpu);
+            break;
+        case 0x9D:
+            cycles = op_sbc_a_l(cpu);
+            break;
+        case 0x9E:
+            cycles = op_sbc_a_hl(cpu, m);
+            break;
+        case 0x9F:
+            cycles = op_sbc_a_a(cpu);
+            break;
         case 0xD6:
             cycles = op_sub_d8(cpu, m);
+            break;
+        case 0xDE:
+            cycles = op_sbc_a_d8(cpu, m);
             break;
         case 0xA0:
             cycles = op_and_b(cpu);

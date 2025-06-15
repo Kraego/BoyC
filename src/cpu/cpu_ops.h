@@ -1196,6 +1196,85 @@ static inline uint8_t op_add_a_d8(cpu_t *cpu, mem_t *m) {
     return 2;
 }
 
+/* Helper for 8-bit ADC operations */
+static inline void op_adc_a(cpu_t *cpu, uint8_t value)
+{
+    uint8_t carry = cpu_get_flag(&cpu->r, F_C);
+    uint16_t res = cpu->r.a + value + carry;
+
+    cpu_set_flag(&cpu->r, F_Z, (res & 0xFF) == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H,
+                 ((cpu->r.a & 0x0F) + (value & 0x0F) + carry) > 0x0F);
+    cpu_set_flag(&cpu->r, F_C, res > 0xFF);
+
+    cpu->r.a = (uint8_t)res;
+}
+
+/* ADC A, B (opcode 0x88) */
+static inline uint8_t op_adc_a_b(cpu_t *cpu) {
+    op_adc_a(cpu, cpu->r.b);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADC A, C (opcode 0x89) */
+static inline uint8_t op_adc_a_c(cpu_t *cpu) {
+    op_adc_a(cpu, cpu->r.c);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADC A, D (opcode 0x8A) */
+static inline uint8_t op_adc_a_d(cpu_t *cpu) {
+    op_adc_a(cpu, cpu->r.d);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADC A, E (opcode 0x8B) */
+static inline uint8_t op_adc_a_e(cpu_t *cpu) {
+    op_adc_a(cpu, cpu->r.e);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADC A, H (opcode 0x8C) */
+static inline uint8_t op_adc_a_h(cpu_t *cpu) {
+    op_adc_a(cpu, cpu->r.h);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADC A, L (opcode 0x8D) */
+static inline uint8_t op_adc_a_l(cpu_t *cpu) {
+    op_adc_a(cpu, cpu->r.l);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADC A, (HL) (opcode 0x8E) */
+static inline uint8_t op_adc_a_hl(cpu_t *cpu, mem_t *m) {
+    op_adc_a(cpu, mem_read_byte(m, cpu->r.hl));
+    cpu->pc++;
+    return 2;
+}
+
+/* ADC A, A (opcode 0x8F) */
+static inline uint8_t op_adc_a_a(cpu_t *cpu) {
+    op_adc_a(cpu, cpu->r.a);
+    cpu->pc++;
+    return 1;
+}
+
+/* ADC A, d8 (opcode 0xCE) */
+static inline uint8_t op_adc_a_d8(cpu_t *cpu, mem_t *m) {
+    uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
+    op_adc_a(cpu, d8);
+    cpu->pc += 2;
+    return 2;
+}
+
 /* SUB B (opcode 0x90) */
 static inline uint8_t op_sub_b(cpu_t *cpu) {
     op_sub_a(cpu, cpu->r.b);
@@ -1256,6 +1335,85 @@ static inline uint8_t op_sub_a_a(cpu_t *cpu) {
 static inline uint8_t op_sub_d8(cpu_t *cpu, mem_t *m) {
     uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
     op_sub_a(cpu, d8);
+    cpu->pc += 2;
+    return 2;
+}
+
+/* Helper for 8-bit SBC operations */
+static inline void op_sbc_a(cpu_t *cpu, uint8_t value)
+{
+    uint8_t carry = cpu_get_flag(&cpu->r, F_C);
+    uint16_t res = cpu->r.a - value - carry;
+
+    cpu_set_flag(&cpu->r, F_Z, (res & 0xFF) == 0);
+    cpu_set_flag(&cpu->r, F_N, 1);
+    cpu_set_flag(&cpu->r, F_H,
+                 (cpu->r.a & 0x0F) < ((value & 0x0F) + carry));
+    cpu_set_flag(&cpu->r, F_C, cpu->r.a < value + carry);
+
+    cpu->r.a = (uint8_t)res;
+}
+
+/* SBC A, B (opcode 0x98) */
+static inline uint8_t op_sbc_a_b(cpu_t *cpu) {
+    op_sbc_a(cpu, cpu->r.b);
+    cpu->pc++;
+    return 1;
+}
+
+/* SBC A, C (opcode 0x99) */
+static inline uint8_t op_sbc_a_c(cpu_t *cpu) {
+    op_sbc_a(cpu, cpu->r.c);
+    cpu->pc++;
+    return 1;
+}
+
+/* SBC A, D (opcode 0x9A) */
+static inline uint8_t op_sbc_a_d(cpu_t *cpu) {
+    op_sbc_a(cpu, cpu->r.d);
+    cpu->pc++;
+    return 1;
+}
+
+/* SBC A, E (opcode 0x9B) */
+static inline uint8_t op_sbc_a_e(cpu_t *cpu) {
+    op_sbc_a(cpu, cpu->r.e);
+    cpu->pc++;
+    return 1;
+}
+
+/* SBC A, H (opcode 0x9C) */
+static inline uint8_t op_sbc_a_h(cpu_t *cpu) {
+    op_sbc_a(cpu, cpu->r.h);
+    cpu->pc++;
+    return 1;
+}
+
+/* SBC A, L (opcode 0x9D) */
+static inline uint8_t op_sbc_a_l(cpu_t *cpu) {
+    op_sbc_a(cpu, cpu->r.l);
+    cpu->pc++;
+    return 1;
+}
+
+/* SBC A, (HL) (opcode 0x9E) */
+static inline uint8_t op_sbc_a_hl(cpu_t *cpu, mem_t *m) {
+    op_sbc_a(cpu, mem_read_byte(m, cpu->r.hl));
+    cpu->pc++;
+    return 2;
+}
+
+/* SBC A, A (opcode 0x9F) */
+static inline uint8_t op_sbc_a_a(cpu_t *cpu) {
+    op_sbc_a(cpu, cpu->r.a);
+    cpu->pc++;
+    return 1;
+}
+
+/* SBC A, d8 (opcode 0xDE) */
+static inline uint8_t op_sbc_a_d8(cpu_t *cpu, mem_t *m) {
+    uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
+    op_sbc_a(cpu, d8);
     cpu->pc += 2;
     return 2;
 }
