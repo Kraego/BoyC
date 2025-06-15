@@ -176,7 +176,31 @@ static inline uint8_t op_jr_s8(cpu_t *cpu, mem_t *m) {
 static inline uint8_t op_jr_nz_s8(cpu_t *cpu, mem_t *m) {
     if (cpu_get_flag(&cpu->r,F_Z) == 0) {
         int8_t s8 = (int8_t)mem_read_byte(m, cpu->pc + 1);
-        cpu->pc = (uint16_t)((int32_t)(cpu->pc + 2) + s8);        
+        cpu->pc = (uint16_t)((int32_t)(cpu->pc + 2) + s8);
+        return 3;
+    }
+
+    cpu->pc += 2;
+    return 2;
+}
+
+/* JR NC, s8 (opcode 0x30)*/
+static inline uint8_t op_jr_nc_s8(cpu_t *cpu, mem_t *m) {
+    if (cpu_get_flag(&cpu->r, F_C) == 0) {
+        int8_t s8 = (int8_t)mem_read_byte(m, cpu->pc + 1);
+        cpu->pc = (uint16_t)((int32_t)(cpu->pc + 2) + s8);
+        return 3;
+    }
+
+    cpu->pc += 2;
+    return 2;
+}
+
+/* JR C, s8 (opcode 0x38)*/
+static inline uint8_t op_jr_c_s8(cpu_t *cpu, mem_t *m) {
+    if (cpu_get_flag(&cpu->r, F_C) == 1) {
+        int8_t s8 = (int8_t)mem_read_byte(m, cpu->pc + 1);
+        cpu->pc = (uint16_t)((int32_t)(cpu->pc + 2) + s8);
         return 3;
     }
 
@@ -217,17 +241,22 @@ static inline uint8_t op_ld_a_a8(cpu_t *cpu, mem_t *m){
     return 3;  
 }
 
-/* CP d8 (opcode 0xFE)*/
-static inline uint8_t op_cp_d8(cpu_t *cpu, mem_t *m){  
-    uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
-    uint8_t diff = cpu->r.a - d8;
-
-    cpu_set_flag(&cpu->r,F_Z, diff == 0);
+/* Helper for CP operations */
+static inline void op_cp(cpu_t *cpu, uint8_t value)
+{
+    uint8_t diff = cpu->r.a - value;
+    cpu_set_flag(&cpu->r, F_Z, diff == 0);
     cpu_set_flag(&cpu->r, F_N, 1);
-    cpu_set_flag(&cpu->r, F_H, (cpu->r.a & 0x0F) < (d8 & 0x0F));
-    cpu_set_flag(&cpu->r, F_C, cpu->r.a < d8);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.a & 0x0F) < (value & 0x0F));
+    cpu_set_flag(&cpu->r, F_C, cpu->r.a < value);
+}
+
+/* CP d8 (opcode 0xFE)*/
+static inline uint8_t op_cp_d8(cpu_t *cpu, mem_t *m){
+    uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
+    op_cp(cpu, d8);
     cpu->pc += 2;
-    return 2;  
+    return 2;
 }
 
 /* AND d8 (opcode 0xE6)*/
@@ -459,6 +488,28 @@ static inline uint8_t op_dec_l(cpu_t *cpu) {
     cpu_set_flag(&cpu->r, F_N, 1);
     cpu_set_flag(&cpu->r, F_H, (cpu->r.l & 0x0F) == 0);
     cpu->r.l = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* INC A (opcode 0x3C) */
+static inline uint8_t op_inc_a(cpu_t *cpu) {
+    uint8_t val = cpu->r.a + 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.a & 0x0F) + 1 > 0x0F);
+    cpu->r.a = val;
+    cpu->pc++;
+    return 1;
+}
+
+/* DEC A (opcode 0x3D) */
+static inline uint8_t op_dec_a(cpu_t *cpu) {
+    uint8_t val = cpu->r.a - 1;
+    cpu_set_flag(&cpu->r, F_Z, val == 0);
+    cpu_set_flag(&cpu->r, F_N, 1);
+    cpu_set_flag(&cpu->r, F_H, (cpu->r.a & 0x0F) == 0);
+    cpu->r.a = val;
     cpu->pc++;
     return 1;
 }
@@ -1071,6 +1122,16 @@ static inline void op_or_a(cpu_t *cpu, uint8_t value)
     cpu_set_flag(&cpu->r, F_C, 0);
 }
 
+/* Helper for 8-bit XOR operations */
+static inline void op_xor_a(cpu_t *cpu, uint8_t value)
+{
+    cpu->r.a ^= value;
+    cpu_set_flag(&cpu->r, F_Z, cpu->r.a == 0);
+    cpu_set_flag(&cpu->r, F_N, 0);
+    cpu_set_flag(&cpu->r, F_H, 0);
+    cpu_set_flag(&cpu->r, F_C, 0);
+}
+
 /* ADD A, B (opcode 0x80) */
 static inline uint8_t op_add_a_b(cpu_t *cpu) {
     op_add_a(cpu, cpu->r.b);
@@ -1255,6 +1316,70 @@ static inline uint8_t op_and_a_a(cpu_t *cpu) {
     return 1;
 }
 
+/* XOR B (opcode 0xA8) */
+static inline uint8_t op_xor_b(cpu_t *cpu) {
+    op_xor_a(cpu, cpu->r.b);
+    cpu->pc++;
+    return 1;
+}
+
+/* XOR C (opcode 0xA9) */
+static inline uint8_t op_xor_c(cpu_t *cpu) {
+    op_xor_a(cpu, cpu->r.c);
+    cpu->pc++;
+    return 1;
+}
+
+/* XOR D (opcode 0xAA) */
+static inline uint8_t op_xor_d(cpu_t *cpu) {
+    op_xor_a(cpu, cpu->r.d);
+    cpu->pc++;
+    return 1;
+}
+
+/* XOR E (opcode 0xAB) */
+static inline uint8_t op_xor_e(cpu_t *cpu) {
+    op_xor_a(cpu, cpu->r.e);
+    cpu->pc++;
+    return 1;
+}
+
+/* XOR H (opcode 0xAC) */
+static inline uint8_t op_xor_h(cpu_t *cpu) {
+    op_xor_a(cpu, cpu->r.h);
+    cpu->pc++;
+    return 1;
+}
+
+/* XOR L (opcode 0xAD) */
+static inline uint8_t op_xor_l(cpu_t *cpu) {
+    op_xor_a(cpu, cpu->r.l);
+    cpu->pc++;
+    return 1;
+}
+
+/* XOR (HL) (opcode 0xAE) */
+static inline uint8_t op_xor_hl(cpu_t *cpu, mem_t *m) {
+    op_xor_a(cpu, mem_read_byte(m, cpu->r.hl));
+    cpu->pc++;
+    return 2;
+}
+
+/* XOR A (opcode 0xAF) */
+static inline uint8_t op_xor_a_a(cpu_t *cpu) {
+    op_xor_a(cpu, cpu->r.a);
+    cpu->pc++;
+    return 1;
+}
+
+/* XOR d8 (opcode 0xEE) */
+static inline uint8_t op_xor_d8(cpu_t *cpu, mem_t *m) {
+    uint8_t d8 = mem_read_byte(m, cpu->pc + 1);
+    op_xor_a(cpu, d8);
+    cpu->pc += 2;
+    return 2;
+}
+
 /* OR B (opcode 0xB0) */
 static inline uint8_t op_or_b(cpu_t *cpu) {
     op_or_a(cpu, cpu->r.b);
@@ -1307,6 +1432,62 @@ static inline uint8_t op_or_hl(cpu_t *cpu, mem_t *m) {
 /* OR A (opcode 0xB7) */
 static inline uint8_t op_or_a_a(cpu_t *cpu) {
     op_or_a(cpu, cpu->r.a);
+    cpu->pc++;
+    return 1;
+}
+
+/* CP B (opcode 0xB8) */
+static inline uint8_t op_cp_b(cpu_t *cpu) {
+    op_cp(cpu, cpu->r.b);
+    cpu->pc++;
+    return 1;
+}
+
+/* CP C (opcode 0xB9) */
+static inline uint8_t op_cp_c(cpu_t *cpu) {
+    op_cp(cpu, cpu->r.c);
+    cpu->pc++;
+    return 1;
+}
+
+/* CP D (opcode 0xBA) */
+static inline uint8_t op_cp_d(cpu_t *cpu) {
+    op_cp(cpu, cpu->r.d);
+    cpu->pc++;
+    return 1;
+}
+
+/* CP E (opcode 0xBB) */
+static inline uint8_t op_cp_e(cpu_t *cpu) {
+    op_cp(cpu, cpu->r.e);
+    cpu->pc++;
+    return 1;
+}
+
+/* CP H (opcode 0xBC) */
+static inline uint8_t op_cp_h(cpu_t *cpu) {
+    op_cp(cpu, cpu->r.h);
+    cpu->pc++;
+    return 1;
+}
+
+/* CP L (opcode 0xBD) */
+static inline uint8_t op_cp_l(cpu_t *cpu) {
+    op_cp(cpu, cpu->r.l);
+    cpu->pc++;
+    return 1;
+}
+
+/* CP (HL) (opcode 0xBE) */
+static inline uint8_t op_cp_hl(cpu_t *cpu, mem_t *m) {
+    op_cp(cpu, mem_read_byte(m, cpu->r.hl));
+    cpu->pc++;
+    return 2;
+}
+
+/* CP A (opcode 0xBF) */
+static inline uint8_t op_cp_a_a(cpu_t *cpu) {
+    op_cp(cpu, cpu->r.a);
     cpu->pc++;
     return 1;
 }
