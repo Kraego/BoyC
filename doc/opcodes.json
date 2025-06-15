@@ -5059,5 +5059,101 @@
         "bytes": 2,
         "cycles": "1",
         "description": "Execution of a STOP instruction stops both the system clock and oscillator circuit. STOP mode is entered and the LCD controller also stops. However, the status of the internal RAM register ports remains unchanged.\nSTOP mode can be cancelled by a reset signal.\nIf the RESET terminal goes LOW in STOP mode, it becomes that of a normal reset status.\nThe following conditions should be met before a STOP instruction is executed and stop mode is entered:\nAll interrupt-enable (IE) flags are reset.\nInput to P10-P13 is LOW for all."
+    },
+    {
+        "mnemonic": "PREFIX CB",
+        "opCode": "CB",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "-",
+        "description": "Prefix for CB-extended opcodes. Reads the next byte as the actual instruction."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "D3",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "DB",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "DD",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "E3",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "E4",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "EB",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "EC",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "ED",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "F4",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "FC",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
+    },
+    {
+        "mnemonic": "UNUSED",
+        "opCode": "FD",
+        "flags": {},
+        "bytes": 1,
+        "cycles": "1",
+        "description": "Unused opcode. Treated as NOP by the emulator."
     }
 ]
