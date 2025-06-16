@@ -449,3 +449,27 @@ TEST(cpu_step_stack_ops, cpu_step)
     EXPECT_EQ(cpu.pc, 0x0108);
     EXPECT_EQ(cpu.sp, 0xC000);
 }
+
+TEST(cpu_step_interrupt_handling, cpu_step)
+{
+    uint8_t rom_image[ROM_SIZE] = {};
+    cpu_t cpu = {};
+
+    cpu_reset(&cpu);
+    cpu.sp = 0xC000;
+    cpu.ime = 1;
+    rom_image[cpu.pc] = 0x00; /* NOP */
+
+    mem_t *mem = mem_create(rom_image, ROM_SIZE);
+
+    /* Enable and request V-Blank interrupt */
+    mem_write_byte(mem, 0xFFFF, 0x01);
+    mem_write_byte(mem, 0xFF0F, 0x01);
+
+    EXPECT_EQ(cpu_step(&cpu, mem), 0);
+    EXPECT_EQ(cpu.pc, 0x0040);
+    EXPECT_EQ(cpu.sp, 0xBFFE);
+    EXPECT_EQ(cpu.ime, 0);
+    EXPECT_EQ(mem_read_word(mem, cpu.sp), 0x0100);
+    EXPECT_EQ(mem_read_byte(mem, 0xFF0F) & 0x01, 0x00);
+}

@@ -34,6 +34,26 @@ void cpu_reset(cpu_t *cpu)
 int8_t cpu_step(cpu_t *cpu, mem_t *m)
 {
     uint8_t cycles = 1;
+
+    /* Handle interrupts before executing the next opcode */
+    uint8_t ie = mem_read_byte(m, 0xFFFF);   /* Interrupt Enable register */
+    uint8_t iflag = mem_read_byte(m, 0xFF0F); /* Interrupt Flag register  */
+    uint8_t pending = ie & iflag;
+
+    if (cpu->ime && pending) {
+        static const uint16_t vectors[5] = {0x40, 0x48, 0x50, 0x58, 0x60};
+        for (int i = 0; i < 5; ++i) {
+            if (pending & (1u << i)) {
+                cpu->ime = 0;                   /* disable master interrupt */
+                mem_write_byte(m, 0xFF0F, iflag & ~(1u << i));
+                push_word(cpu, m, cpu->pc);     /* save current PC         */
+                cpu->pc = vectors[i];
+                cpu->cycles += 5;               /* interrupt latency       */
+                return 0;
+            }
+        }
+    }
+
     uint8_t opcode = mem_read_byte(m, cpu->pc);
 
     switch (opcode)
