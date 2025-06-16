@@ -89,6 +89,7 @@ set(BOYC_TESTS
     cpu_step_xor_cp_ops.cpu_step
     cpu_step_adc_sbc_ops.cpu_step
     cpu_step_stack_ops.cpu_step
+    cpu_step_interrupt_handling.cpu_step
     display_line_test.draw_line
     display_circle_test.draw_circle
 )
