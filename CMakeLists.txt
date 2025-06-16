@@ -16,10 +16,12 @@ find_package(SDL2 QUIET)
 if(SDL2_FOUND)
     message(STATUS "Using SDL2")
     set(DISPLAY_SRC src/display/display.cpp)
+    set(AUDIO_SRC src/audio/audio.cpp)
     set(DISPLAY_LIBS SDL2::SDL2)
 else()
     message(STATUS "SDL2 not found - using stub display")
     set(DISPLAY_SRC src/display/display_stub.cpp)
+    set(AUDIO_SRC src/audio/audio_stub.cpp)
     set(DISPLAY_LIBS)
 endif()
 
@@ -31,6 +33,7 @@ if(SDL2_FOUND)
         src/cpu/cpu.cpp
         src/rom/rom.cpp
         ${DISPLAY_SRC}
+        ${AUDIO_SRC}
         src/ppu/ppu.cpp)
 
     target_link_libraries(boyc_exec PRIVATE ${DISPLAY_LIBS})
@@ -41,6 +44,7 @@ if(SDL2_FOUND)
         src/mem
         src/rom
         src/display
+        src/audio
         src/ppu
     )
 endif()
@@ -51,11 +55,13 @@ add_executable(tests
     tests/ctest/ctest.c
     tests/cpu/cpu-test.cpp
     tests/display/display-test.cpp
+    tests/audio/audio-test.cpp
     tests/helper/test-helper.cpp
     src/cpu/cpu.cpp
     src/mem/mem.cpp
     src/rom/rom.cpp
     ${DISPLAY_SRC}
+    ${AUDIO_SRC}
     src/ppu/ppu.cpp)
 
 target_include_directories(tests PRIVATE
@@ -66,6 +72,7 @@ target_include_directories(tests PRIVATE
     src/mem
     src/rom
     src/display
+    src/audio
     src/ppu
 )
 
@@ -92,6 +99,7 @@ set(BOYC_TESTS
     cpu_step_interrupt_handling.cpu_step
     display_line_test.draw_line
     display_circle_test.draw_circle
+    audio_init_test.init_destroy
 )
 
 # Register each test

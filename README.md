@@ -49,7 +49,7 @@ Game Boy Emulation in C (gcc9). For self study - NOT INDUSTRIAL GRADE MATERIAL
 * [ ] Emualate I/O
 * [ ] Graphics
 * [ ] Inputs
-* [ ] Sound
+* [x] Sound
 
 ## Links
 

@@ -5,6 +5,7 @@
 #include "mem.h"
 #include "rom.h"
 #include "display.h"
+#include "audio.h"
 #include "ppu.h"
 #include <SDL.h>
 
@@ -42,6 +43,8 @@ int main(int argc, char const *argv[])
         return 1;
     }
 
+    audio_init(44100, 512);
+
     while (!quit) {
         SDL_Event e;
 
@@ -60,10 +63,12 @@ int main(int argc, char const *argv[])
         (void)delta; /* silence unused variable warning if not used */
 
         display_render(frame);
+        audio_play_sample(0, 0);
         SDL_Delay(16);
     }
 
     display_destroy();
+    audio_destroy();
 
     ppu_reset(&ppu);
 
