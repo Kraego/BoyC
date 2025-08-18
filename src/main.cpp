@@ -48,6 +48,36 @@ int main(int argc, char const *argv[])
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 quit = 1;
+            } else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+                int pressed = (e.type == SDL_KEYDOWN);
+                switch (e.key.keysym.scancode) {
+                    case SDL_SCANCODE_RIGHT:
+                        mem_set_joypad(mem, JOY_RIGHT, pressed);
+                        break;
+                    case SDL_SCANCODE_LEFT:
+                        mem_set_joypad(mem, JOY_LEFT, pressed);
+                        break;
+                    case SDL_SCANCODE_UP:
+                        mem_set_joypad(mem, JOY_UP, pressed);
+                        break;
+                    case SDL_SCANCODE_DOWN:
+                        mem_set_joypad(mem, JOY_DOWN, pressed);
+                        break;
+                    case SDL_SCANCODE_Z:
+                        mem_set_joypad(mem, JOY_A, pressed);
+                        break;
+                    case SDL_SCANCODE_X:
+                        mem_set_joypad(mem, JOY_B, pressed);
+                        break;
+                    case SDL_SCANCODE_RETURN:
+                        mem_set_joypad(mem, JOY_START, pressed);
+                        break;
+                    case SDL_SCANCODE_RSHIFT:
+                        mem_set_joypad(mem, JOY_SELECT, pressed);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
