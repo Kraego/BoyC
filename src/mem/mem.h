@@ -20,6 +20,19 @@ void mem_write_byte (mem_t *m, uint16_t addr, uint8_t value);   /* write byte */
 uint16_t mem_read_word (mem_t *m, uint16_t addr);              /* read  word  */
 void mem_write_word (mem_t *m, uint16_t addr, uint16_t value);  /* write word */
 
+typedef enum {
+    JOY_RIGHT = 0,
+    JOY_LEFT,
+    JOY_UP,
+    JOY_DOWN,
+    JOY_A,
+    JOY_B,
+    JOY_SELECT,
+    JOY_START
+} joypad_button_t;
+
+void mem_set_joypad(mem_t *m, joypad_button_t button, int pressed);
+
 /* Constructor / reset */
 mem_t *mem_create(const uint8_t *rom_image, size_t rom_size);
 void mem_reset (mem_t *m);

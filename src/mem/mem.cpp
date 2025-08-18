@@ -13,6 +13,9 @@ struct mem {
     uint8_t  io[128];
     uint8_t  ie;
 
+    uint8_t  joyp_buttons;
+    uint8_t  joyp_dpad;
+
     /* Cartridge area */
     const uint8_t *rom;
     size_t         rom_size;
@@ -52,6 +55,13 @@ uint8_t mem_read_byte(mem_t *m, uint16_t adr)
             } else if (adr < 0xFF00) { // FEA0–FEFF: Unusable memory
                 return 0xFF;
             } else if (adr < 0xFF80) { // FF00–FF7F: I/O Registers
+                if (adr == 0xFF00) {
+                    uint8_t select = m->io[0] & 0x30;
+                    uint8_t data = 0x0F;
+                    if (!(select & 0x10)) data &= m->joyp_dpad;
+                    if (!(select & 0x20)) data &= m->joyp_buttons;
+                    return 0xC0 | select | data;
+                }
                 return m->io[adr - 0xFF00];
             } else if (adr < 0xFFFF) { // FF80–FFFE: High RAM (HRAM)
                 return m->hram[adr - 0xFF80];
@@ -97,11 +107,15 @@ void mem_write_byte(mem_t *m, uint16_t adr, uint8_t value)
             } else if (adr < 0xFF00) {
                 /* unusable memory */
             } else if (adr < 0xFF80) { // FF00–FF7F: I/O Registers
-                m->io[adr - 0xFF00] = value;
-                if (adr == 0xFF02 && value == 0x81) {
-                    uint8_t c = m->io[0x01];
-                    putchar(c);
-                    fflush(stdout);
+                if (adr == 0xFF00) {
+                    m->io[0] = (value & 0x30) | 0xC0;
+                } else {
+                    m->io[adr - 0xFF00] = value;
+                    if (adr == 0xFF02 && value == 0x81) {
+                        uint8_t c = m->io[0x01];
+                        putchar(c);
+                        fflush(stdout);
+                    }
                 }
             } else if (adr < 0xFFFF) { // FF80–FFFE: HRAM
                 m->hram[adr - 0xFF80] = value;
@@ -121,6 +135,24 @@ void mem_write_word(mem_t *m, uint16_t adr, uint16_t value)
     mem_write_byte(m, adr + 1, value >> 8);
 }
 
+void mem_set_joypad(mem_t *m, joypad_button_t button, int pressed)
+{
+    uint8_t mask = 1 << (button & 3);
+    if (button <= JOY_DOWN) {
+        if (pressed) {
+            m->joyp_dpad &= ~mask;
+        } else {
+            m->joyp_dpad |= mask;
+        }
+    } else {
+        if (pressed) {
+            m->joyp_buttons &= ~mask;
+        } else {
+            m->joyp_buttons |= mask;
+        }
+    }
+}
+
 /* TODOS: mem_wb(), mem_rw(), mem_ww() would mirror the same map,
    plus call-outs for DMA, joypad latches, timer increments, etc.        */
 
@@ -131,6 +163,10 @@ mem_t *mem_create(const uint8_t *rom_image, size_t rom_size){
     }
     memory->rom = rom_image;
     memory->rom_size = rom_size;
+
+    memory->joyp_buttons = 0x0F;
+    memory->joyp_dpad = 0x0F;
+    memory->io[0] = 0xCF;
 
     return memory;
 }
